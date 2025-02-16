@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function updateTime() {
         const now = new Date().toLocaleTimeString('en-US', {
-            timeZone: 'Europe/Vienna',
+            timeZone: 'America/New_York',
             hour12: true,
             hour: 'numeric',
             minute: '2-digit'
