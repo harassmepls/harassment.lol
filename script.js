@@ -3,36 +3,53 @@ document.addEventListener('DOMContentLoaded', function() {
         DISCORD_USER_ID: '1404732292412477531',
         SPOTIFY_CLIENT_ID: 'e087c7926f31424187af19ffa5ccb97c',
         DISCORD_BOT_TOKEN: null,
-        UPDATE_INTERVAL: 3,
-        SPOTIFY_UPDATE_INTERVAL: 5
+        UPDATE_INTERVAL: 30000, 
+        SPOTIFY_UPDATE_INTERVAL: 10000 
     };
+
     
+    function checkRequiredElements() {
+        const ids = ['main-avatar', 'discord-avatar', 'discord-username', 'discord-status', 'discord-activity', 'spotify-track', 'spotify-artist', 'spotify-album', 'last-seen'];
+        const classes = ['name-text', 'profile-img-container', 'frost-overlay'];
+        ids.forEach(id => {
+            if (!document.getElementById(id)) {
+                console.warn(`⚠️ Element #${id} not found`);
+            }
+        });
+        classes.forEach(cls => {
+            if (!document.querySelector(`.${cls}`)) {
+                console.warn(`⚠️ Element .${cls} not found`);
+            }
+        });
+    }
+    checkRequiredElements();
+
     const cursor = document.querySelector('.cursor');
     if (cursor) {
         document.addEventListener('mousemove', (e) => {
             cursor.style.left = e.clientX + 'px';
             cursor.style.top = e.clientY + 'px';
         });
-        
+
         const hoverElements = document.querySelectorAll('a, .profile-img');
         hoverElements.forEach(element => {
             element.addEventListener('mouseenter', () => {
                 cursor.style.width = '16px';
                 cursor.style.height = '16px';
             });
-            
+
             element.addEventListener('mouseleave', () => {
                 cursor.style.width = '8px';
                 cursor.style.height = '8px';
             });
         });
     }
-    
+
     const typingText = document.querySelector('.typing-text');
     if (typingText) {
         const text = 'made by @orgasmdonors';
         let index = 0;
-        
+
         function typeWriter() {
             if (index < text.length) {
                 typingText.textContent = text.slice(0, index + 1);
@@ -46,84 +63,115 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 4000);
             }
         }
-        
+
         setTimeout(typeWriter, 1000);
     }
-    
+
     async function updateDiscordStatus() {
-        console.log('🔄 Mise à jour du statut Discord...');
-        
+        console.log(`🔄 Updating Discord status for ID: ${CONFIG.DISCORD_USER_ID}`);
         try {
             const lanyardResponse = await fetch(`https://api.lanyard.rest/v1/users/${CONFIG.DISCORD_USER_ID}`);
-            
+            console.log('Lanyard Status:', lanyardResponse.status);
             if (lanyardResponse.ok) {
                 const lanyardData = await lanyardResponse.json();
-                console.log('✅ Données Lanyard reçues:', lanyardData);
-                
                 if (lanyardData.success && lanyardData.data) {
+                    console.log('✅ Lanyard Data:', lanyardData.data);
                     updateDiscordUI(lanyardData.data);
                     return;
                 }
+            } else {
+                console.log('❌ Lanyard failed with status:', lanyardResponse.status);
             }
-            
+
+            if (CONFIG.DISCORD_BOT_TOKEN) {
+                const discordResponse = await fetch(`https://discord.com/api/v10/users/${CONFIG.DISCORD_USER_ID}`, {
+                    headers: { 'Authorization': `Bot ${CONFIG.DISCORD_BOT_TOKEN}` }
+                });
+                console.log('Discord API Status:', discordResponse.status);
+                if (discordResponse.ok) {
+                    const discordData = await discordResponse.json();
+                    console.log('✅ Discord API Data:', discordData);
+                    updateDiscordUIFromAPI(discordData);
+                    return;
+                } else {
+                    console.log('❌ Discord API failed with status:', discordResponse.status);
+                }
+            } else {
+                console.log('⚠️ No Discord bot token provided');
+            }
+
             const lookupResponse = await fetch(`https://discordlookup.mesalytic.moe/v1/user/${CONFIG.DISCORD_USER_ID}`);
-            
+            console.log('Discord Lookup Status:', lookupResponse.status);
             if (lookupResponse.ok) {
                 const lookupData = await lookupResponse.json();
-                console.log('✅ Données Discord Lookup reçues:', lookupData);
+                console.log('✅ Discord Lookup Data:', lookupData);
                 updateDiscordUIFromLookup(lookupData);
                 return;
             }
-            
-            const discordResponse = await fetch(`https://discord.com/api/v10/users/${CONFIG.DISCORD_USER_ID}`);
-            
-            if (discordResponse.ok) {
-                const discordData = await discordResponse.json();
-                console.log('✅ Données Discord API reçues:', discordData);
-                updateDiscordUIFromAPI(discordData);
-                return;
-            }
-            
+
+            console.log('😴 Falling back to offline');
+            updateDiscordOffline();
         } catch (error) {
-            console.error('❌ Erreur lors de la récupération des données Discord:', error);
+            console.error('❌ Error fetching Discord data:', error);
+            showNotification('Failed to load Discord profile');
+            updateDiscordOffline();
         }
-        
-        updateDiscordOffline();
     }
-    
+
     function updateDiscordUI(userData) {
         if (window.lastDiscordUpdate && Date.now() - window.lastDiscordUpdate < 5000) {
             return;
         }
         window.lastDiscordUpdate = Date.now();
-        
-        console.log('🎨 Mise à jour UI Discord avec Lanyard:', userData);
-        
+
+        console.log('🎨 Updating Discord UI with Lanyard:', userData);
+
         const avatar = document.getElementById('discord-avatar');
         const mainAvatar = document.getElementById('main-avatar');
         const username = document.getElementById('discord-username');
         const status = document.getElementById('discord-status');
         const activity = document.getElementById('discord-activity');
         const activityImage = document.getElementById('activity-image');
-        
+        const nameText = document.querySelector('.name-text'); 
+
         if (userData.discord_user) {
             const avatarUrl = userData.discord_user.avatar 
                 ? `https://cdn.discordapp.com/avatars/${userData.discord_user.id}/${userData.discord_user.avatar}.png?size=128`
                 : `https://cdn.discordapp.com/embed/avatars/${(parseInt(userData.discord_user.discriminator) || 0) % 5}.png`;
-            
+
             if (avatar) avatar.src = avatarUrl;
             if (mainAvatar) mainAvatar.src = avatarUrl;
-            
+
             const discordUsername = userData.discord_user.username || 'cenfoire';
             if (username) username.textContent = '@' + discordUsername;
-            
+
             currentDiscordHandle = '@' + discordUsername;
-            
+
             if (status) {
                 const statusClass = userData.discord_status || 'offline';
                 status.className = `status-indicator ${statusClass}`;
             }
+
             
+            if (nameText) {
+                if (userData.discord_status === 'online') {
+                    nameText.style.background = 'var(--gradient-ice)';
+                } else if (userData.discord_status === 'offline') {
+                    nameText.style.background = 'linear-gradient(135deg, #4b5e8c, #6b7280, #4b5e8c)';
+                } else if (userData.discord_status === 'idle') {
+                    nameText.style.background = 'var(--gradient-frost)';
+                } else if (userData.discord_status === 'dnd') {
+                    nameText.style.background = 'linear-gradient(135deg, #ed4245, #f472b6, #ed4245)';
+                } else {
+                    nameText.style.background = 'var(--gradient-ice)';
+                }
+                nameText.style.backgroundSize = '200% 100%';
+                nameText.style.webkitBackgroundClip = 'text';
+                nameText.style.backgroundClip = 'text';
+                nameText.style.color = 'transparent';
+                nameText.style.animation = 'gradientSlide 4s linear infinite';
+            }
+
             if (activity) {
                 if (userData.activities && userData.activities.length > 0) {
                     const filteredActivities = userData.activities.filter(a => 
@@ -131,17 +179,16 @@ document.addEventListener('DOMContentLoaded', function() {
                         a.name !== 'Spotify' &&
                         !a.name.toLowerCase().includes('spotify')
                     );
-                    
+
                     if (filteredActivities.length > 0) {
                         const currentActivity = filteredActivities[0];
-                        
                         let activityHTML = '';
-                        
+
                         switch (currentActivity.type) {
                             case 0:
                                 activityHTML = `
                                     <span class="activity-text">
-                                        🎮 Joue à ${currentActivity.name}
+                                        🎮 Playing ${currentActivity.name}
                                         ${currentActivity.details ? `<br><small>${currentActivity.details}</small>` : ''}
                                         ${currentActivity.state ? `<br><small>${currentActivity.state}</small>` : ''}
                                     </span>
@@ -161,7 +208,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             case 1:
                                 activityHTML = `
                                     <span class="activity-text">
-                                        🔴 Stream ${currentActivity.name}
+                                        🔴 Streaming ${currentActivity.name}
                                         ${currentActivity.details ? `<br><small>${currentActivity.details}</small>` : ''}
                                     </span>
                                 `;
@@ -169,16 +216,16 @@ document.addEventListener('DOMContentLoaded', function() {
                             case 2:
                                 activityHTML = `
                                     <span class="activity-text">
-                                        🎵 Écoute ${currentActivity.name}
+                                        🎵 Listening to ${currentActivity.name}
                                         ${currentActivity.details ? `<br><small>${currentActivity.details}</small>` : ''}
-                                        ${currentActivity.state ? `<br><small>par ${currentActivity.state}</small>` : ''}
+                                        ${currentActivity.state ? `<br><small>by ${currentActivity.state}</small>` : ''}
                                     </span>
                                 `;
                                 break;
                             case 3:
                                 activityHTML = `
                                     <span class="activity-text">
-                                        📺 Regarde ${currentActivity.name}
+                                        📺 Watching ${currentActivity.name}
                                         ${currentActivity.details ? `<br><small>${currentActivity.details}</small>` : ''}
                                     </span>
                                 `;
@@ -191,164 +238,122 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </span>
                                 `;
                         }
-                        
+
                         activity.innerHTML = activityHTML;
                     } else {
-                        activity.innerHTML = '<span class="activity-text">Aucune activité</span>';
+                        activity.innerHTML = '<span class="activity-text">No activity</span>';
                         if (activityImage) activityImage.style.display = 'none';
                     }
                 } else {
-                    activity.innerHTML = '<span class="activity-text">Aucune activité</span>';
+                    activity.innerHTML = '<span class="activity-text">No activity</span>';
                     if (activityImage) activityImage.style.display = 'none';
                 }
             }
-            
+
             if (userData.spotify) {
                 updateSpotifyFromDiscord(userData.spotify);
             }
         }
     }
-    
+
     function updateDiscordUIFromLookup(userData) {
-        console.log('🎨 Mise à jour UI Discord avec Lookup:', userData);
-        
+        console.log('🎨 Updating Discord UI with Lookup:', userData);
+
         const avatar = document.getElementById('discord-avatar');
         const mainAvatar = document.getElementById('main-avatar');
         const username = document.getElementById('discord-username');
         const discriminator = document.getElementById('discord-discriminator');
         const status = document.getElementById('discord-status');
         const activity = document.getElementById('discord-activity');
-        
+        const nameText = document.querySelector('.name-text');
+
         const avatarUrl = userData.avatar && userData.avatar.link 
             ? userData.avatar.link
             : `https://cdn.discordapp.com/embed/avatars/0.png`;
-        
+
         if (avatar) avatar.src = avatarUrl;
         if (mainAvatar) mainAvatar.src = avatarUrl;
-        
+
         if (username) username.textContent = userData.username || 'c';
         if (discriminator) {
             discriminator.textContent = userData.discriminator 
                 ? `#${userData.discriminator}` 
                 : '';
         }
-        
+
         if (status) status.className = 'status-indicator online';
-        if (activity) activity.innerHTML = '<span class="activity-text">En ligne</span>';
+        if (activity) activity.innerHTML = '<span class="activity-text">Online</span>';
+
+        if (nameText) {
+            nameText.style.background = 'var(--gradient-ice)';
+            nameText.style.backgroundSize = '200% 100%';
+            nameText.style.webkitBackgroundClip = 'text';
+            nameText.style.backgroundClip = 'text';
+            nameText.style.color = 'transparent';
+            nameText.style.animation = 'gradientSlide 4s linear infinite';
+        }
     }
-    
+
     function updateDiscordUIFromAPI(userData) {
-        console.log('🎨 Mise à jour UI Discord avec API:', userData);
-        
+        console.log('🎨 Updating Discord UI with API:', userData);
+
         const avatar = document.getElementById('discord-avatar');
         const mainAvatar = document.getElementById('main-avatar');
         const username = document.getElementById('discord-username');
         const discriminator = document.getElementById('discord-discriminator');
-        
+        const nameText = document.querySelector('.name-text');
+
         const avatarUrl = userData.avatar 
             ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png?size=128`
             : `https://cdn.discordapp.com/embed/avatars/${(parseInt(userData.discriminator) || 0) % 5}.png`;
-        
+
         if (avatar) avatar.src = avatarUrl;
         if (mainAvatar) mainAvatar.src = avatarUrl;
-        
+
         if (username) username.textContent = userData.username || 'c';
         if (discriminator) {
             discriminator.textContent = userData.discriminator 
                 ? `#${userData.discriminator}` 
                 : '';
         }
+
+        if (nameText) {
+            nameText.style.background = 'var(--gradient-ice)';
+            nameText.style.backgroundSize = '200% 100%';
+            nameText.style.webkitBackgroundClip = 'text';
+            nameText.style.backgroundClip = 'text';
+            nameText.style.color = 'transparent';
+            nameText.style.animation = 'gradientSlide 4s linear infinite';
+        }
     }
-    
+
     function updateDiscordOffline() {
-        console.log('😴 Playing');
-        
+        console.log('😴 Offline');
+
         const avatar = document.getElementById('discord-avatar');
         const mainAvatar = document.getElementById('main-avatar');
         const username = document.getElementById('discord-username');
         const discriminator = document.getElementById('discord-discriminator');
         const status = document.getElementById('discord-status');
         const activity = document.getElementById('discord-activity');
-        
+        const nameText = document.querySelector('.name-text');
+
         const defaultAvatar = 'https://cdn.discordapp.com/embed/avatars/0.png';
         if (avatar) avatar.src = defaultAvatar;
         if (mainAvatar) mainAvatar.src = defaultAvatar;
-        
+
         if (username) username.textContent = 'c';
         if (discriminator) discriminator.textContent = '';
         if (status) status.className = 'status-indicator offline';
-        if (activity) activity.innerHTML = '<span class="activity-text">Playing</span>';
-    }
-    
-    function updateSpotifyFromDiscord(spotifyData) {
-        const trackName = document.getElementById('spotify-track');
-        const artistName = document.getElementById('spotify-artist');
-        const albumArt = document.getElementById('spotify-album');
-        
-        if (spotifyData && spotifyData.song) {
-            if (trackName) trackName.textContent = spotifyData.song;
-            if (artistName) artistName.textContent = spotifyData.artist;
-            
-            if (albumArt && spotifyData.album_art_url) {
-                albumArt.src = spotifyData.album_art_url;
-                albumArt.style.display = 'block';
-            }
-        } else {
-            if (trackName) trackName.textContent = 'Rien en cours';
-            if (artistName) artistName.textContent = '-';
-            if (albumArt) albumArt.style.display = 'none';
-        }
-    }
-    
-    async function updateSpotifyStatus() {
-        try {
-            const token = localStorage.getItem('spotify_access_token');
-            
-            if (!token) {
-                return;
-            }
-            
-            const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (response.ok && response.status !== 204) {
-                const data = await response.json();
-                updateSpotifyUI(data);
-            } else if (response.status === 401) {
-                localStorage.removeItem('spotify_access_token');
-                console.log('Token Spotify expiré');
-            }
-        } catch (error) {
-            console.log('Erreur API Spotify:', error);
-        }
-    }
-    
-    function updateSpotifyUI(data) {
-        const trackName = document.getElementById('spotify-track');
-        const artistName = document.getElementById('spotify-artist');
-        const albumArt = document.getElementById('spotify-album');
-        const albumArtContainer = document.querySelector('.album-art');
-        const spotifyWidget = document.querySelector('.spotify-widget');
-        
-        if (data && data.is_playing && data.item) {
-            if (trackName) trackName.textContent = data.item.name;
-            if (artistName) artistName.textContent = data.item.artists.map(artist => artist.name).join(', ');
-            
-            if (albumArt && data.item.album && data.item.album.images && data.item.album.images.length > 0) {
-                albumArt.src = data.item.album.images[0].url;
-                if (albumArtContainer) albumArtContainer.style.display = 'block';
-            }
-            
-            if (spotifyWidget) spotifyWidget.classList.remove('no-music');
-        } else {
-            if (trackName) trackName.textContent = 'Not playing';
-            if (artistName) artistName.textContent = '';
-            if (albumArtContainer) albumArtContainer.style.display = 'none';
-            
-            if (spotifyWidget) spotifyWidget.classList.add('no-music');
+        if (activity) activity.innerHTML = '<span class="activity-text">Offline</span>';
+
+        if (nameText) {
+            nameText.style.background = 'linear-gradient(135deg, #4b5e8c, #6b7280, #4b5e8c)';
+            nameText.style.backgroundSize = '200% 100%';
+            nameText.style.webkitBackgroundClip = 'text';
+            nameText.style.backgroundClip = 'text';
+            nameText.style.color = 'transparent';
+            nameText.style.animation = 'gradientSlide 4s linear infinite';
         }
     }
 
@@ -356,65 +361,117 @@ document.addEventListener('DOMContentLoaded', function() {
         const trackName = document.getElementById('spotify-track');
         const artistName = document.getElementById('spotify-artist');
         const albumArt = document.getElementById('spotify-album');
-        const albumArtContainer = document.querySelector('.album-art');
-        const spotifyWidget = document.querySelector('.spotify-widget');
-        
+
         if (spotifyData && spotifyData.song) {
             if (trackName) trackName.textContent = spotifyData.song;
             if (artistName) artistName.textContent = spotifyData.artist;
-            
+
             if (albumArt && spotifyData.album_art_url) {
                 albumArt.src = spotifyData.album_art_url;
-                if (albumArtContainer) albumArtContainer.style.display = 'block';
-            } else {
-                if (albumArtContainer) albumArtContainer.style.display = 'none';
+                albumArt.style.display = 'block';
             }
+        } else {
+            if (trackName) trackName.textContent = 'Not playing';
+            if (artistName) artistName.textContent = '-';
+            if (albumArt) albumArt.style.display = 'none';
+        }
+    }
+
+    async function updateSpotifyStatus() {
+        try {
+            const token = localStorage.getItem('spotify_access_token');
+            if (!token) {
+                console.log('⚠️ No Spotify access token found');
+                return;
+            }
+
+            const response = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            console.log('Spotify API Status:', response.status);
+            if (response.ok && response.status !== 204) {
+                const data = await response.json();
+                console.log('✅ Spotify Data:', data);
+                updateSpotifyUI(data);
+            } else if (response.status === 401) {
+                console.log('❌ Spotify token expired');
+                localStorage.removeItem('spotify_access_token');
+                authenticateSpotify();
+            } else {
+                console.log('⚠️ No music currently playing');
+                updateSpotifyUI(null);
+            }
+        } catch (error) {
+            console.error('❌ Spotify API Error:', error);
+            updateSpotifyUI(null);
+        }
+    }
+
+    function updateSpotifyUI(data) {
+        const trackName = document.getElementById('spotify-track');
+        const artistName = document.getElementById('spotify-artist');
+        const albumArt = document.getElementById('spotify-album');
+        const albumArtContainer = document.querySelector('.album-art');
+        const spotifyWidget = document.querySelector('.spotify-widget');
+
+        if (data && data.is_playing && data.item) {
+            if (trackName) trackName.textContent = data.item.name;
+            if (artistName) artistName.textContent = data.item.artists.map(artist => artist.name).join(', ');
+
+            if (albumArt && data.item.album && data.item.album.images && data.item.album.images.length > 0) {
+                albumArt.src = data.item.album.images[0].url;
+                if (albumArtContainer) albumArtContainer.style.display = 'block';
+            }
+
+            if (spotifyWidget) spotifyWidget.classList.remove('no-music');
         } else {
             if (trackName) trackName.textContent = 'Not playing';
             if (artistName) artistName.textContent = '';
             if (albumArtContainer) albumArtContainer.style.display = 'none';
-            
+
             if (spotifyWidget) spotifyWidget.classList.add('no-music');
         }
     }
-    
+
     function initSpotifyAuth() {
         const params = new URLSearchParams(window.location.hash.substring(1));
         const accessToken = params.get('access_token');
-        
+
         if (accessToken) {
             localStorage.setItem('spotify_access_token', accessToken);
             window.location.hash = '';
         }
     }
-    
+
     function authenticateSpotify() {
         const scopes = 'user-read-currently-playing user-read-playback-state';
         const redirectUri = window.location.origin + window.location.pathname;
-        
+
         const authUrl = `https://accounts.spotify.com/authorize?` +
             `client_id=${CONFIG.SPOTIFY_CLIENT_ID}&` +
             `response_type=token&` +
             `redirect_uri=${encodeURIComponent(redirectUri)}&` +
             `scope=${encodeURIComponent(scopes)}`;
-        
+
         window.location.href = authUrl;
     }
-    
+
     const discordLink = document.querySelector('.discord-link');
     if (discordLink) {
         discordLink.addEventListener('click', (e) => {
             e.preventDefault();
             const usernameElement = document.getElementById('discord-username');
             const currentUsername = usernameElement ? usernameElement.textContent : '@don';
-            
+
             navigator.clipboard.writeText(currentUsername).then(() => {
-                showNotification(`Nom Discord copié : ${currentUsername}`);
+                showNotification(`Discord username copied: ${currentUsername}`);
             }).catch(() => {
-                showNotification('Erreur lors de la copie');
+                showNotification('Error copying username');
             });
         });
     }
+
     const spotifyLink = document.querySelector('.spotify-link');
     if (spotifyLink) {
         spotifyLink.addEventListener('click', (e) => {
@@ -426,18 +483,19 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     function showNotification(message) {
         const notification = document.createElement('div');
+        notification.className = 'notification';
         notification.style.cssText = `
             position: fixed;
             bottom: 20px;
             right: 20px;
             background: rgba(0, 0, 0, 0.9);
-            color: #e1e8ed;
+            color: var(--text-primary);
             padding: 12px 20px;
             border-radius: 8px;
-            border: 1px solid #2c3e50;
+            border: 1px solid var(--border-color);
             backdrop-filter: blur(20px);
             z-index: 10000;
             font-size: 14px;
@@ -445,13 +503,13 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         notification.textContent = message;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.style.animation = 'slideOutRight 0.3s ease';
             setTimeout(() => notification.remove(), 300);
         }, 3000);
     }
-    
+
     function updateLastSeen() {
         const lastSeenElement = document.getElementById('last-seen');
         if (lastSeenElement) {
@@ -463,7 +521,7 @@ document.addEventListener('DOMContentLoaded', function() {
             lastSeenElement.textContent = `My time is: ${timeString}`;
         }
     }
-    
+
     function createExtraSnow() {
         const snowContainer = document.querySelector('.snow-container');
         if (snowContainer) {
@@ -478,18 +536,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
-    console.log('❄️ Initialisation du thème winter...');
-    
+
+    console.log('❄️ Initializing winter theme...'); 
+
     initSpotifyAuth();
     updateDiscordStatus();
     updateSpotifyStatus();
     updateLastSeen();
     createExtraSnow();
-    
+
     setInterval(updateDiscordStatus, CONFIG.UPDATE_INTERVAL);
     setInterval(updateSpotifyStatus, CONFIG.SPOTIFY_UPDATE_INTERVAL);
     setInterval(updateLastSeen, 60000);
-    
-    console.log('✅ winterr addedd');
+
+    console.log('✅ Winter theme initialized');
 });
