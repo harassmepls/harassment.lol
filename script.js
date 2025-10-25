@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     const typingText = document.querySelector('.typing-text');
     if (typingText) {
-        const text = 'made by @orgasmdonors';
+        const text = 'Game & Website Developer 5+ Years';
         let index = 0;
 
         function typeWriter() {
