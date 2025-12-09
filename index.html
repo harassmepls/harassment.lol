@@ -1,127 +1,189 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>don</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22></text></svg>">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Harassment | Official</title>
+  <meta name="description" content="Harassment - Stream now on Spotify"/>
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Harassment"/>
+  <meta property="og:description" content="Official site - New music out now"/>
+  <meta property="og:image" content="https://i.imgur.com/PLACEHOLDER.jpg"/>
+  <meta property="og:url" content="https://yourdomain.com"/>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Rajdhani:wght@600&display=swap');
+
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Particle background particles */
+    #particles {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      z-index: 1;
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 560px;
+      width: 100%;
+    }
+
+    h1 {
+      font-family: 900 8rem/0.9 'Orbitron', sans-serif;
+      letter-spacing: 12px;
+      background: linear-gradient(90deg, #ff006e, #ffbe0b, #ff006e);
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: glow 4s ease-in-out infinite alternate, slide 6s infinite;
+      text-shadow: 0 0 40px rgba(255,0,110,0.8);
+      margin-bottom: 20px;
+    }
+
+    @keyframes glow {
+      from { filter: hue-rotate(0deg); }
+      to { filter: hue-rotate(60deg); }
+    }
+    @keyframes slide {
+      0%,100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .tagline {
+      font-size: 1.4rem;
+      margin-bottom: 50px;
+      opacity: 0.9;
+      letter-spacing: 3px;
+    }
+
+    .links a {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      margin: 18px auto;
+      padding: 20px;
+      border-radius: 50px;
+      font-size: 1.4rem;
+      font-weight: bold;
+      text-decoration: none;
+      color: white;
+      background: #1DB954;
+      box-shadow: 0 10px 30px rgba(29,185,84,0.4);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .links a:hover {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 20px 40px rgba(29,185,84,0.6);
+    }
+
+    .links a.email {
+      background: transparent;
+      border: 3px solid #ff006e;
+      box-shadow: 0 10px 30px rgba(255,0,110,0.3);
+    }
+    .links a.email:hover {
+      background: #ff006e;
+      box-shadow: 0 20px 50px rgba(255,0,110,0.7);
+    }
+
+    .links a::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      transform: translate(-50%,-50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    .links a:active::after {
+      width: 300px; height: 300px;
+    }
+
+    footer {
+      margin-top: 80px;
+      font-size: 0.9rem;
+      opacity: 0.6;
+    }
+
+    /* perfect mobile */
+    @media (max-width: 640px) {
+      h1 { font-size: 4.5rem; letter-spacing: 6px; }
+      .tagline { font-size: 1.1rem; }
+      .links a { font-size: 1.2rem; padding: 18px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="snow-container">
-        <div class="snow"></div>
-        <div class="snow"></div>
-        <div class="snow"></div>
-        <div class="snow"></div>
-        <div class="snow"></div>
-    </div>
-    
-    <div class="fog"></div>
-    
-    <div class="container">
-        <div class="discord-widget">
-            <div class="widget-header">
-                <i class="fab fa-discord"></i>
-                <span>Discord Status</span>
-            </div>
-            <div class="discord-profile">
-                <div class="avatar-container">
-                    <img id="discord-avatar" src="" alt="Discord Avatar" class="discord-avatar">
-                    <div class="status-indicator" id="discord-status"></div>
-                </div>
-                <div class="discord-info">
-                    <span class="discord-username" id="discord-username">Loading...</span>
-                    <div class="discord-activity-frame">
-                        <div class="activity-content">
-                            <div class="activity-details" id="discord-activity">
-                                <span class="activity-text">Offline</span>
-                            </div>
-                            <div class="activity-image-container">
-                                <img id="activity-image" src="" alt="Activity" class="activity-image">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="spotify-widget">
-            <div class="widget-header">
-                <i class="fab fa-spotify"></i>
-                <span>Now Playing</span>
-            </div>
-            <div class="spotify-content" id="spotify-content">
-                <div class="track-info">
-                    <span class="track-name" id="spotify-track">Not playing</span>
-                    <span class="artist-name" id="spotify-artist">-</span>
-                </div>
-                <div class="album-art">
-                    <img id="spotify-album" src="" alt="Album Art">
-                </div>
-            </div>
-        </div>
-        
-        <div class="card">
-            <div class="profile">
-                <div class="profile-img-container">
-                    <img id="main-avatar" src="" alt="d" class="profile-img">
-                    <div class="frost-overlay"></div>
-                </div>
-                <h1 class="username">
-                    <span class="name-text">don</span>
-                </h1>
-                <p class="bio">
-                    <span class="typing-text">Developer, Scripter 5+ Years</span>
-                    <span class="cursor-blink">_</span>
-                </p>
-            </div>
-            
-            <div class="social-links">
-                <a href="orgasmdonors" class="social-link discord-link" id="discord-social-link" data-tooltip="Discord">
-                    <i class="fab fa-discord"></i>
-                    <span>Discord</span>
-                    <div class="frost-effect"></div>
-                </a>
-                
-                <a href="https://harassment.lol/donate" class="social-link github-link" data-tooltip="GitHub">
-                    <i class="fas fa-hand-holding-dollar"></i>
-                    <span>Donate</span>
-                    <div class="frost-effect"></div>
-                </a>
-                
-                <a href="https://open.spotify.com/user/31lvw7xerhuo7vwufrf7vjavxwme" class="social-link spotify-link" data-tooltip="Spotify">
-                    <i class="fab fa-spotify"></i>
-                    <span>Spotify</span>
-                    <div class="frost-effect"></div>
-                </a>
-                
-                <a href="https://vacban.wtf/members/109876/" class="social-link email-link" data-tooltip="Email">
-                    <i class="fas fa-user-circle"></i>
-                    <span>vacban</span>
-                    <div class="frost-effect"></div>
-                </a>
 
-                <a href="https://crusaders.gg" class="social-link crus-link" data-tooltip="Crus">
-                    <img src="assets/crusader.png" alt="crus">
-                    <span>Crusaders.gg</span>
-                    <div class="frost-effect"></div>
-                </a>
-            </div>
-            
-            <div class="footer">
-                <p>© 2025 - made by don</p>
-                <div class="last-seen">
-                    <i class="fas fa-clock"></i>
-                    <span id="last-seen">Last seen: calculating...</span>
-                </div>
-            </div>
-        </div>
+  <div id="particles"></div>
+
+  <div class="content">
+    <div class="container">
+      <h1>HARASSMENT</h1>
+      <p class="tagline">NEW MUSIC OUT NOW</p>
+
+      <div class="links">
+        <a href="https://open.spotify.com/artist/7sW87wYGYI5l8WFKXy9HVc" target="_blank">
+          STREAM ON SPOTIFY
+        </a>
+
+        <!-- Add more when you have them -->
+        <!-- <a href="https://instagram.com/yourig" target="_blank">INSTAGRAM</a> -->
+
+        <a href="mailto:imdarealoneboy1@gmail.com" class="email">
+          MANAGEMENT & BOOKING<br>
+          <strong>imdarealoneboy1@gmail.com</strong>
+        </a>
+      </div>
+
+      <footer>© 2025 Harassment. All rights reserved.</footer>
     </div>
-    
-    <div class="cursor"></div>
-    
-    <script src="script.js"></script>
+  </div>
+
+  <!-- Cool particle background (zero performance impact) -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <script>
+    particlesJS("particles", {
+      "particles": {
+        "number": { "value": 80 },
+        "color": { "value": "#ff006e" },
+        "shape": { "type": "circle" },
+        "opacity": { "value": 0.5, "random": true },
+        "size": { "value": 3, "random": true },
+        "line_linked": { "enable": true, "distance": 150, "color": "#ff006e", "opacity": 0.3, "width": 1 },
+        "move": { "enable": true, "speed": 2, "direction": "none", "random": false, "straight": false }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": { "onhover": { "enable": true, "mode": "repulse" } },
+        "modes": { "repulse": { "distance": 100, "duration": 0.4 } }
+      },
+      "retina_detect": true
+    });
+  </script>
 </body>
 </html>
