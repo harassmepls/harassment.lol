@@ -1,59 +1,742 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Harassment | Official</title>
-  <meta name="description" content="Harassment - Official website">
-
-  <!-- These lines make Spotify verify you instantly -->
-  <link rel="canonical" href="https://harassment.lol" />
-  <meta property="og:title" content="Harassment">
-  <meta property="og:type" content="music.musician">
-  <meta property="og:url" content="https://harassment.lol">
-  <meta property="music:musician" content="https://open.spotify.com/artist/7sW87wYGYI5l8WFKXy9HVc">
-
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&family=Rajdhani:wght@700&display=swap');
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{background:#000;color:#fff;font-family:'Rajdhani',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
-    h1{font:900 7.5rem 'Orbitron',sans-serif;letter-spacing:15px;background:linear-gradient(90deg,#ff006e,#fff,#ffbe0b);background-size:300%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:grad 6s infinite;text-shadow:0 0 60px #ff006e60}
-    @keyframes grad{0%{background-position:0%}100%{background-position:300%}}
-    .tag{margin:30px 0 60px;font-size:1.5rem;letter-spacing:5px}
-    .bigbtn{display:block;width:90%;max-width:460px;margin:25px auto;padding:24px;border-radius:50px;font-size:1.6rem;font-weight:bold;text-decoration:none;color:#fff;transition:.4s}
-    .spotify{background:#1DB954;box-shadow:0 15px 50px #1db95460}
-    .spotify:hover{transform:scale(1.06);box-shadow:0 25px 70px #1db95490}
-    .email{background:transparent;border:4px solid #ff006e;box-shadow:0 15px 50px #ff006e50;color:#ff006e;font-size:1.8rem !important}
-    .email:hover{background:#ff006e;color:#fff;box-shadow:0 25px 70px #ff006e90}
-    footer{margin-top:100px;font-size:1.1rem;line-height:1.8}
-    footer a{color:#1db954;font-weight:bold}
-    @media(max-width:640px){
-      h1{font-size:4.2rem;letter-spacing:8px}
-      .bigbtn{font-size:1.4rem;padding:20px}
-      .email{font-size:1.5rem !important}
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>harassment</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-darker: #050505;
+            --bg-card: #111111;
+            --text-primary: #ffffff;
+            --text-secondary: #6b7280;
+            --accent: #e5e7eb;
+            --border: rgba(255, 255, 255, 0.06);
+        }
+        @keyframes gradient {
+            0%, 100% { transform: translate(0, 0); }
+            50% { transform: translate(-80px, 80px); }
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @keyframes rotate {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+            50% {
+                transform: translate(-50%, -50%) rotate(288deg);
+            }
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-primary);
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        body.loaded {
+            opacity: 1;
+        }
+        .bg-grain {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            z-index: 0;
+            pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' /%3E%3C/svg%3E");
+        }
+        .bg-gradient {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .gradient-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(150px);
+            opacity: 0.08;
+        }
+        .blob-1 {
+            width: 700px;
+            height: 700px;
+            background: #ffffff;
+            top: -200px;
+            right: -100px;
+            animation: gradient 30s infinite ease-in-out;
+        }
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: #9ca3af;
+            bottom: -200px;
+            left: -200px;
+            animation: gradient 25s infinite ease-in-out reverse;
+        }
+        .section {
+            min-height: auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 10px;
+            position: relative;
+            z-index: 1;
+        }
+        .animated-border-box {
+            position: relative;
+            overflow: hidden; 
+            z-index: 0;
+            border-radius: 20px;
+        }
+        .animated-border-box:before {
+            content: '';
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(transparent, #C0C0C0, transparent 2%);
+            animation: rotate 20s linear infinite;
+            z-index: -2;
+        }
+        .animated-border-box:after {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            left: 1px;
+            top: 1px;
+            width: calc(100% - 2px);
+            height: calc(100% - 2px);
+            background: var(--bg-darker);
+            border-radius: 19px;
+        }
+        .container {
+            max-width: 550px;
+            width: 100%;
+            background: transparent;
+            backdrop-filter: none;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: none;
+            border: none;
+            opacity: 0;
+            transform: translateY(40px);
+            position: relative;
+            z-index: 1;
+        }
+        .container.visible {
+            animation: fadeInUp 1s ease forwards;
+        }
+        .profile {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 12px;
+        }
+        .avatar {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            border: 3px solid rgba(229, 231, 235, 0.2);
+            object-fit: cover;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 30px rgba(229, 231, 235, 0.15);
+        }
+        .avatar:hover {
+            transform: scale(1.08) rotate(5deg);
+            border-color: rgba(229, 231, 235, 0.4);
+        }
+        .status-indicator {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 3px solid rgba(17, 17, 17, 0.9);
+            background: #71717a;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+        .status-indicator.online {
+            background: #22c55e;
+            box-shadow: 0 0 15px rgba(34, 197, 94, 0.6);
+        }
+        .status-indicator.idle {
+            background: #eab308;
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.6);
+        }
+        .status-indicator.dnd {
+            background: #ef4444;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+        }
+        .status-indicator.offline { background: #71717a; }
+        .name {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text-primary);
+            min-height: 38px;
+        }
+        .name::after {
+            content: '|';
+            animation: blink 0.7s step-end infinite;
+        }
+        .name.typing-done::after {
+            content: '';
+        }
+        @keyframes blink {
+            from, to { opacity: 1; }
+            50% { opacity: 0; }
+        }
+        .bio {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+            min-height: 48px;
+        }
+        .section-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+        .spotify-custom {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        .spotify-album-art {
+            width: 64px;
+            height: 64px;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .spotify-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .spotify-song {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .spotify-artist {
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .spotify-progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-top: 8px;
+            position: relative;
+        }
+        .spotify-progress {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width 1s linear;
+        }
+        .spotify-times {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+        .activity-custom {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            margin-top: 10px;
+        }
+        .activity-text {
+            font-size: 14px;
+            color: var(--text-primary);
+        }
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: var(--bg-card);
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .skill-item:before {
+            content: '';
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background-repeat: no-repeat;
+            background-position: 0 0;
+            background-image: conic-gradient(transparent, #C0C0C0, transparent 2%);
+            animation: rotate 20s linear infinite;
+            z-index: -2;
+        }
+        .skill-item:after {
+            content: '';
+            position: absolute;
+            z-index: -1;
+            left: 1px;
+            top: 1px;
+            width: calc(100% - 2px);
+            height: calc(100% - 2px);
+            background: var(--bg-card);
+            border-radius: 9px;
+        }
+        .skill-item:hover {
+            background: rgba(39, 39, 42, 0.8);
+            transform: translateY(-3px);
+            border-color: rgba(229, 231, 235, 0.15);
+        }
+        .skill-icon {
+            width: 22px;
+            height: 22px;
+            color: var(--accent);
+            z-index: 1;
+        }
+        .skill-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            z-index: 1;
+        }
+        .projects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .project-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            transition: all 0.3s ease;
+        }
+        .project-item:hover {
+            transform: translateX(8px);
+        }
+        .project-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+            margin-top: 4px;
+        }
+        .project-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .project-info {
+            flex: 1;
+        }
+        .project-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        .project-title:hover {
+            text-decoration: underline;
+        }
+        .project-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+        @media (max-width: 600px) {
+            .section {
+                padding: 20px 10px;
+            }
+            .container {
+                padding: 15px 12px;
+            }
+            .avatar {
+                width: 90px;
+                height: 90px;
+            }
+            .name {
+                font-size: 24px;
+            }
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+            .blob-1, .blob-2 {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body>
+    <div class="bg-grain"></div>
+    <div class="bg-gradient">
+        <div class="gradient-blob blob-1"></div>
+        <div class="gradient-blob blob-2"></div>
+    </div>
+    <!-- Main Profile Section -->
+    <div class="section">
+        <div class="container animated-border-box" id="profile-container">
+            <div class="profile">
+                <div class="avatar-container">
+                    <img src="https://cdn.discordapp.com/embed/avatars/0.png" alt="Avatar" class="avatar" id="avatar">
+                    <div class="status-indicator offline" id="status"></div>
+                </div>
+                <h1 class="name" id="username"></h1>
+                <p class="bio" id="bio"></p>
+            </div>
+            <div id="activity-section" style="display: none;">
+                <div class="section-title">Activity</div>
+                <div class="activity-custom">
+                    <div class="activity-text" id="activity"></div>
+                </div>
+            </div>
+            <div id="spotify-section" style="display: none;">
+                <div class="section-title">Now Playing</div>
+                <div class="spotify-custom" id="spotify-custom">
+                    <img id="spotify-album-art" class="spotify-album-art" src="" alt="Album Art">
+                    <div class="spotify-info">
+                        <div class="spotify-song" id="spotify-song"></div>
+                        <div class="spotify-artist" id="spotify-artist"></div>
+                        <div class="spotify-progress-bar">
+                            <div class="spotify-progress" id="spotify-progress"></div>
+                        </div>
+                        <div class="spotify-times">
+                            <span id="spotify-current-time">0:00</span>
+                            <span id="spotify-total-time">0:00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Skills Section -->
+    <div class="section">
+        <div class="container animated-border-box" id="skills-container">
+            <div class="section-title">Skills & Technologies</div>
+            <div class="skills-grid">
+                <div class="skill-item">
+                    <svg class="skill-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    <span class="skill-name">Python</span>
+                </div>
+                <div class="skill-item">
+                    <svg class="skill-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"/>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+                    </svg>
+                    <span class="skill-name">PostgreSQL</span>
+                </div>
+                <div class="skill-item">
+                    <svg class="skill-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="16 18 22 12 16 6"/>
+                        <polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    <span class="skill-name">TypeScript</span>
+                </div>
+                <div class="skill-item">
+                    <svg class="skill-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"/>
+                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    <span class="skill-name">HTML/CSS</span>
+                </div>
+                <div class="skill-item">
+                    <svg class="skill-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                        <line x1="8" y1="21" x2="16" y2="21"/>
+                        <line x1="12" y1="17" x2="12" y2="21"/>
+                    </svg>
+                    <span class="skill-name">Debian Linux</span>
+                </div>
+                <div class="skill-item">
+                    <svg class="skill-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                        <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    <span class="skill-name">Redis</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Projects Section -->
+    <div class="section">
+        <div class="container animated-border-box" id="projects-container">
+            <div class="section-title">My Work</div>
+            <div class="projects-list">
+                <div class="project-item">
+                    <div class="project-icon"><img src="https://cdn.nest.rip/uploads/0d379f30-d071-4591-aefa-811160326cad.jpeg" alt="Spite Icon"></div>
+                    <div class="project-info">
+                        <a href="https://spite.lol" class="project-title">spite.lol</a>
+                        <p class="project-desc">A premium multi-purpose Discord bot releasing soon to servers.</p>
+                    </div>
+                </div>
+                <div class="project-item">
+                    <div class="project-icon"><img src="https://cdn.nest.rip/uploads/1506e1ed-b0ab-4ca8-a13f-86c3e640420d.jpeg" alt="Economy Icon"></div>
+                    <div class="project-info">
+                        <a href="https://discord.com/invite/economy" class="project-title">economy.bot</a>
+                        <p class="project-desc">A premium economy Discord bot for server entertainment & games.</p>
+                    </div>
+                </div>
+                <div class="project-item">
+                    <div class="project-icon"><img src="https://cdn.nest.rip/uploads/1506e1ed-b0ab-4ca8-a13f-86c3e640420d.jpeg" alt="Premium Icon"></div>
+                    <div class="project-info">
+                        <a href="https://discord.com/invite/economy" class="project-title">premium.bots</a>
+                        <p class="project-desc">Premium.bots we operate & manage services to Discord bots such as spite.lol and economy.bot</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const DISCORD_ID = '1404732292412477531';
+        const BIO_TEXT = 'developer from the Russia thats always interested in new technologies.';
+        const DEFAULT_USERNAME = 'harassment';
+        let ws;
+        let heartbeatInterval;
+        let spotifyInterval;
+        // Typewriter effect
+        function typeWriter(element, text, speed = 100, callback) {
+            let i = 0;
+            element.textContent = '';
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else {
+                    element.classList.add('typing-done');
+                    if (callback) callback();
+                }
+            }
+            type();
+        }
+        // Bio typewriter effect
+        function typeBio(element, text, speed = 30) {
+            let i = 0;
+            element.textContent = '';
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                }
+            }
+            type();
+        }
+        function connectWebSocket() {
+            ws = new WebSocket('wss://api.lanyard.rest/socket');
+            ws.onopen = () => {
+                console.log('Connected to Lanyard');
+            };
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                if (data.op === 1) {
+                    heartbeatInterval = setInterval(() => {
+                        ws.send(JSON.stringify({ op: 3 }));
+                    }, data.d.heartbeat_interval);
+                    ws.send(JSON.stringify({
+                        op: 2,
+                        d: { subscribe_to_id: DISCORD_ID }
+                    }));
+                } else if (data.op === 0) {
+                    if (data.t === 'INIT_STATE' || data.t === 'PRESENCE_UPDATE') {
+                        updatePresence(data.t === 'INIT_STATE' ? data.d : data.d);
+                    }
+                }
+            };
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+            ws.onclose = () => {
+                console.log('Disconnected, reconnecting...');
+                clearInterval(heartbeatInterval);
+                setTimeout(connectWebSocket, 3000);
+            };
+        }
+        function formatTime(seconds) {
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+        function updateSpotifyProgress(start, end) {
+            const now = Date.now();
+            const elapsed = (now - start) / 1000;
+            const duration = (end - start) / 1000;
+            const progress = (now - start) / (end - start) * 100;
 
-  <h1>HARASSMENT</h1>
-  <div class="tag">NEW MUSIC OUT NOW</div>
+            document.getElementById('spotify-current-time').textContent = formatTime(elapsed);
+            document.getElementById('spotify-progress').style.width = `${progress}%`;
 
-  <a href="https://open.spotify.com/album/7E61AJij6ThJlgTdGHzb27" class="bigbtn spotify" target="_blank">
-    STREAM ON SPOTIFY
-  </a>
+            if (now >= end) {
+                clearInterval(spotifyInterval);
+            }
+        }
+        function updatePresence(presence) {
+            const avatar = document.getElementById('avatar');
+            const usernameEl = document.getElementById('username');
+            const bioEl = document.getElementById('bio');
+            const discordUser = presence.discord_user;
+            if (discordUser) {
+                const avatarUrl = discordUser.avatar
+                    ? `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}.${discordUser.avatar.startsWith('a_') ? 'gif' : 'png'}?size=256`
+                    : 'https://cdn.discordapp.com/embed/avatars/0.png';
+                avatar.src = avatarUrl;
+                // Use default username instead of overriding with Discord username
+            }
+            const statusEl = document.getElementById('status');
+            statusEl.className = `status-indicator ${presence.discord_status || 'offline'}`;
+            const spotifySection = document.getElementById('spotify-section');
+            if (presence.listening_to_spotify && presence.spotify) {
+                spotifySection.style.display = 'block';
+                document.getElementById('spotify-song').textContent = presence.spotify.song;
+                document.getElementById('spotify-artist').textContent = `by ${presence.spotify.artist}`;
+                document.getElementById('spotify-album-art').src = presence.spotify.album_art_url;
+                document.getElementById('spotify-total-time').textContent = formatTime((presence.spotify.timestamps.end - presence.spotify.timestamps.start) / 1000);
 
-  <!-- THIS IS WHAT SPOTIFY WANTS TO SEE – SUPER VISIBLE EMAIL -->
-  <a href="mailto:imdarealoneboy1@gmail.com" class="bigbtn email">
-    MANAGEMENT & BOOKING<br>
-    <strong>imdarealoneboy1@gmail.com</strong>
-  </a>
-
-  <footer>
-    This is the official website of<br>
-    <a href="https://open.spotify.com/artist/7sW87wYGYI5l8WFKXy9HVc" target="_blank">Harassment on Spotify</a><br><br>
-    © 2025 Harassment – All rights reserved
-  </footer>
-
+                clearInterval(spotifyInterval);
+                updateSpotifyProgress(presence.spotify.timestamps.start, presence.spotify.timestamps.end);
+                spotifyInterval = setInterval(() => {
+                    updateSpotifyProgress(presence.spotify.timestamps.start, presence.spotify.timestamps.end);
+                }, 1000);
+            } else {
+                spotifySection.style.display = 'none';
+                clearInterval(spotifyInterval);
+            }
+            // Update activity
+            const activitySection = document.getElementById('activity-section');
+            const activityEl = document.getElementById('activity');
+            let activityText = '';
+            const activities = presence.activities || [];
+            for (const act of activities) {
+                if (act.type === 4 && act.state) { // Custom status
+                    activityText = act.state;
+                    if (act.emoji && act.emoji.name) {
+                        activityText = `${act.emoji.name} ${activityText}`;
+                    }
+                    break;
+                } else if (act.type === 0) { // Playing a game
+                    activityText = `Playing ${act.name}`;
+                    break;
+                } else if (act.type === 1) { // Streaming
+                    activityText = `Streaming ${act.name}`;
+                    break;
+                } else if (act.type === 3) { // Watching
+                    activityText = `Watching ${act.name}`;
+                    break;
+                }
+            }
+            if (activityText) {
+                activityEl.textContent = activityText;
+                activitySection.style.display = 'block';
+            } else {
+                activitySection.style.display = 'none';
+            }
+        }
+        // Scroll animations
+        function handleScroll() {
+            const containers = document.querySelectorAll('.container');
+            containers.forEach(container => {
+                const rect = container.getBoundingClientRect();
+                const windowHeight = window.innerHeight;
+                if (rect.top <= windowHeight * 0.75) {
+                    container.classList.add('visible');
+                }
+            });
+        }
+        // Initialize
+        window.addEventListener('scroll', handleScroll);
+        window.addEventListener('load', () => {
+            document.body.classList.add('loaded');
+            const usernameEl = document.getElementById('username');
+            const bioEl = document.getElementById('bio');
+            typeWriter(usernameEl, DEFAULT_USERNAME, 150, () => {
+                setTimeout(() => {
+                    typeBio(bioEl, BIO_TEXT, 30);
+                }, 300);
+            });
+            handleScroll();
+            connectWebSocket();
+        });
+        handleScroll();
+    </script>
 </body>
 </html>
